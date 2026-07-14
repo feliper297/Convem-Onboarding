@@ -1,0 +1,96 @@
+BEGIN;
+-- ===== Reg+ =====
+INSERT INTO public.projects (id, name, tagline, description, color, soft, icon, team_lead, team_size)
+VALUES ('reg-plus', 'Reg+', 'Plataforma de compliance e gestão regulatória', 'Sistema interno responsável por monitorar obrigações regulatórias, prevenção à lavagem de dinheiro e relatórios exigidos pelo Banco Central.', '#6E3AAE', '#F1EAFB', 'ShieldCheck', 'Otávio Reszka', 6)
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, color = EXCLUDED.color, soft = EXCLUDED.soft, icon = EXCLUDED.icon, team_lead = EXCLUDED.team_lead, team_size = EXCLUDED.team_size, updated_at = now();
+
+INSERT INTO public.project_objectives (project_id, description, order_index) VALUES ('reg-plus', 'Garantir 100% de aderência aos prazos regulatórios', 0);
+INSERT INTO public.project_objectives (project_id, description, order_index) VALUES ('reg-plus', 'Automatizar a geração de relatórios obrigatórios', 1);
+INSERT INTO public.project_objectives (project_id, description, order_index) VALUES ('reg-plus', 'Reduzir o tempo de análise de alertas de PLD', 2);
+INSERT INTO public.project_metrics (project_id, label, target, order_index) VALUES ('reg-plus', 'Aderência a prazos regulatórios', '100%', 0);
+INSERT INTO public.project_metrics (project_id, label, target, order_index) VALUES ('reg-plus', 'Relatórios obrigatórios automatizados', '100% até Q4', 1);
+INSERT INTO public.project_metrics (project_id, label, target, order_index) VALUES ('reg-plus', 'Tempo médio de análise de alerta', '< 24h', 2);
+INSERT INTO public.project_links (project_id, label, url, order_index) VALUES ('reg-plus', 'Repositório principal', '#', 0);
+INSERT INTO public.project_links (project_id, label, url, order_index) VALUES ('reg-plus', 'Base de conhecimento de Compliance', '#', 1);
+INSERT INTO public.project_technologies (project_id, name, order_index) VALUES ('reg-plus', 'Python', 0);
+INSERT INTO public.project_technologies (project_id, name, order_index) VALUES ('reg-plus', 'Django', 1);
+INSERT INTO public.project_technologies (project_id, name, order_index) VALUES ('reg-plus', 'Airflow', 2);
+INSERT INTO public.project_technologies (project_id, name, order_index) VALUES ('reg-plus', 'PostgreSQL', 3);
+INSERT INTO public.project_technologies (project_id, name, order_index) VALUES ('reg-plus', 'Elasticsearch', 4);
+INSERT INTO public.project_squads (project_id, name, order_index) VALUES ('reg-plus', 'PLD', 0);
+INSERT INTO public.project_squads (project_id, name, order_index) VALUES ('reg-plus', 'Relatórios Regulatórios', 1);
+INSERT INTO public.trilha_items (project_id, title, order_index) VALUES ('reg-plus', 'Conhecer o produto', 0);
+INSERT INTO public.trilha_items (project_id, title, order_index) VALUES ('reg-plus', 'Instalar ambiente', 1);
+INSERT INTO public.trilha_items (project_id, title, order_index) VALUES ('reg-plus', 'Configurar acessos', 2);
+INSERT INTO public.trilha_items (project_id, title, order_index) VALUES ('reg-plus', 'Ler documentação', 3);
+INSERT INTO public.trilha_items (project_id, title, order_index) VALUES ('reg-plus', 'Assistir vídeos', 4);
+INSERT INTO public.trilha_items (project_id, title, order_index) VALUES ('reg-plus', 'Realizar treinamento', 5);
+INSERT INTO public.trilha_items (project_id, title, order_index) VALUES ('reg-plus', 'Fazer exercício prático', 6);
+INSERT INTO public.trilha_items (project_id, title, order_index) VALUES ('reg-plus', 'Validar conhecimentos', 7);
+INSERT INTO public.doc_categories (project_id, name, icon, order_index) VALUES ('reg-plus', 'Arquitetura', 'Layers', 0);
+INSERT INTO public.doc_categories (project_id, name, icon, order_index) VALUES ('reg-plus', 'Regras de negócio', 'ListTree', 1);
+INSERT INTO public.doc_categories (project_id, name, icon, order_index) VALUES ('reg-plus', 'Fluxos', 'Workflow', 2);
+INSERT INTO public.doc_categories (project_id, name, icon, order_index) VALUES ('reg-plus', 'Design System', 'Sparkles', 3);
+INSERT INTO public.doc_categories (project_id, name, icon, order_index) VALUES ('reg-plus', 'APIs', 'Code2', 4);
+INSERT INTO public.doc_categories (project_id, name, icon, order_index) VALUES ('reg-plus', 'Banco de Dados', 'Database', 5);
+INSERT INTO public.doc_categories (project_id, name, icon, order_index) VALUES ('reg-plus', 'Padrões de Código', 'FileCode2', 6);
+INSERT INTO public.doc_categories (project_id, name, icon, order_index) VALUES ('reg-plus', 'Boas práticas', 'ShieldCheck', 7);
+INSERT INTO public.documents (project_id, category_id, title, type, url, author)
+SELECT 'reg-plus', dc.id, 'Pipeline de dados regulatórios', 'Diagrama', '#', 'Otávio Reszka'
+FROM public.doc_categories dc WHERE dc.project_id = 'reg-plus' AND dc.name = 'Arquitetura';
+INSERT INTO public.documents (project_id, category_id, title, type, url, author)
+SELECT 'reg-plus', dc.id, 'Critérios de alerta de PLD', 'Documento', '#', 'Lívia Castanho'
+FROM public.doc_categories dc WHERE dc.project_id = 'reg-plus' AND dc.name = 'Regras de negócio';
+INSERT INTO public.documents (project_id, category_id, title, type, url, author)
+SELECT 'reg-plus', dc.id, 'Fluxo de análise de alerta', 'Fluxo', '#', 'Otávio Reszka'
+FROM public.doc_categories dc WHERE dc.project_id = 'reg-plus' AND dc.name = 'Fluxos';
+INSERT INTO public.documents (project_id, category_id, title, type, url, author)
+SELECT 'reg-plus', dc.id, 'Modelo de eventos regulatórios', 'Documento', '#', 'Otávio Reszka'
+FROM public.doc_categories dc WHERE dc.project_id = 'reg-plus' AND dc.name = 'Banco de Dados';
+INSERT INTO public.documents (project_id, category_id, title, type, url, author)
+SELECT 'reg-plus', dc.id, 'Guia de estilo Python', 'Guia', '#', 'Otávio Reszka'
+FROM public.doc_categories dc WHERE dc.project_id = 'reg-plus' AND dc.name = 'Padrões de Código';
+INSERT INTO public.documents (project_id, category_id, title, type, url, author)
+SELECT 'reg-plus', dc.id, 'Política de retenção de dados', 'Guia', '#', 'Lívia Castanho'
+FROM public.doc_categories dc WHERE dc.project_id = 'reg-plus' AND dc.name = 'Boas práticas';
+INSERT INTO public.glossario (project_id, term, definition) VALUES ('reg-plus', 'PLD', 'Prevenção à Lavagem de Dinheiro.');
+INSERT INTO public.glossario (project_id, term, definition) VALUES ('reg-plus', 'Rollback', 'Reversão de uma alteração para um estado anterior estável.');
+INSERT INTO public.glossario (project_id, term, definition) VALUES ('reg-plus', 'API', 'Interface que permite a comunicação entre sistemas diferentes.');
+INSERT INTO public.team_members (project_id, name, role, area, contact, specialty) VALUES ('reg-plus', 'Otávio Reszka', 'Tech Lead', 'Engenharia', 'otavio.reszka@empresa.com', 'Pipelines de dados');
+INSERT INTO public.team_members (project_id, name, role, area, contact, specialty) VALUES ('reg-plus', 'Lívia Castanho', 'Especialista em Compliance', 'Compliance', 'livia.castanho@empresa.com', 'Regulação do Banco Central');
+INSERT INTO public.stakeholders (project_id, name, role, area, contact, influence, interest, expectativa) VALUES ('reg-plus', 'Gustavo Arruda', 'Diretor de Compliance', 'Compliance', 'gustavo.arruda@empresa.com', 'Alto', 'Alto', '100% de aderência aos prazos do Bacen sem falhas');
+INSERT INTO public.stakeholders (project_id, name, role, area, contact, influence, interest, expectativa) VALUES ('reg-plus', 'Isabela Campos', 'Auditora Interna', 'Auditoria', 'isabela.campos@empresa.com', 'Alto', 'Alto', 'Rastreabilidade completa de todas as análises de PLD');
+INSERT INTO public.stakeholders (project_id, name, role, area, contact, influence, interest, expectativa) VALUES ('reg-plus', 'Felipe Duarte', 'Head de Tecnologia', 'TI', 'felipe.duarte@empresa.com', 'Médio', 'Médio', 'Automação máxima de relatórios regulatórios');
+INSERT INTO public.reunioes (project_id, name, description, frequency, duration, time, participants, link) VALUES ('reg-plus', 'Daily', 'Alinhamento de tarefas e prazos regulatórios do dia.', 'Diária', '15 min', '09:00', ARRAY['Devs', 'Compliance', 'Tech Lead'], 'https://meet.google.com/abc-defg-hij');
+INSERT INTO public.reunioes (project_id, name, description, frequency, duration, time, participants, link) VALUES ('reg-plus', 'Sprint Planning', 'Planejamento com foco em obrigações regulatórias e PLD.', 'A cada 2 semanas', '1h30', '10:00 (seg)', ARRAY['Devs', 'PO', 'Compliance'], 'https://meet.google.com/abc-defg-hij');
+INSERT INTO public.reunioes (project_id, name, description, frequency, duration, time, participants, link) VALUES ('reg-plus', 'Sprint Review', 'Validação das entregas com o time de Compliance.', 'A cada 2 semanas', '1h', '15:00 (sex)', ARRAY['Devs', 'Compliance', 'Auditoria'], 'https://meet.google.com/abc-defg-hij');
+INSERT INTO public.reunioes (project_id, name, description, frequency, duration, time, participants, link) VALUES ('reg-plus', 'Reunião Regulatória Mensal', 'Revisão do calendário de obrigações e status de entregas ao Bacen.', 'Mensal', '2h', '10:00 (última qua)', ARRAY['Compliance', 'TI', 'Auditoria'], 'https://meet.google.com/abc-defg-hij');
+INSERT INTO public.reunioes (project_id, name, description, frequency, duration, time, participants, link) VALUES ('reg-plus', 'Comitê de PLD', 'Análise de alertas críticos de PLD e decisões de encaminhamento.', 'Mensal', '1h', '14:00 (1ª ter)', ARRAY['Compliance', 'Tech Lead', 'Diretoria'], 'https://meet.google.com/abc-defg-hij');
+INSERT INTO public.faq (project_id, category, question, answer, order_index) VALUES ('reg-plus', 'Regulação', 'Onde encontro o calendário regulatório?', 'Disponível na Documentação > Regras de negócio.', 0);
+INSERT INTO public.operacao_alertas (project_id, nome, severidade, significado, acao) VALUES ('reg-plus', 'PLD_ALERT_CRITICAL', 'Alta', 'Alerta de PLD classificado como crítico pelo motor de regras. Requer análise manual imediata em até 24h.', 'Abrir caso no sistema de análise de PLD e acionar analista de Compliance via #pld-alertas.');
+INSERT INTO public.operacao_alertas (project_id, nome, severidade, significado, acao) VALUES ('reg-plus', 'BACEN_REPORT_OVERDUE', 'Alta', 'Relatório obrigatório para o Bacen com prazo vencido ou em risco (menos de 1h para o deadline).', 'Acionar Otávio Reszka (Tech Lead) e Gustavo Arruda (Compliance) imediatamente.');
+INSERT INTO public.operacao_alertas (project_id, nome, severidade, significado, acao) VALUES ('reg-plus', 'PIPELINE_DELAY', 'Média', 'Pipeline de ingestão de dados regulatórios com atraso superior a 30 minutos.', 'Verificar DAGs no Airflow e logs do Elasticsearch.');
+INSERT INTO public.operacao_alertas (project_id, nome, severidade, significado, acao) VALUES ('reg-plus', 'DATA_QUALITY_FAIL', 'Média', 'Falha na validação de qualidade de dados que alimentam relatórios regulatórios.', 'Checar regras de validação no serviço data-quality-reg e reprocessar se necessário.');
+INSERT INTO public.operacao_diagnostico (project_id, step_text, order_index) VALUES ('reg-plus', '1. Verificar o painel de status de obrigações regulatórias no Reg+', 0);
+INSERT INTO public.operacao_diagnostico (project_id, step_text, order_index) VALUES ('reg-plus', '2. Checar logs do pipeline no Airflow (DAG: bacen_report_pipeline)', 1);
+INSERT INTO public.operacao_diagnostico (project_id, step_text, order_index) VALUES ('reg-plus', '3. Verificar se os dados do Elasticsearch estão indexados corretamente', 2);
+INSERT INTO public.operacao_diagnostico (project_id, step_text, order_index) VALUES ('reg-plus', '4. Confirmar se há jobs de reprocessamento pendentes na fila', 3);
+INSERT INTO public.operacao_diagnostico (project_id, step_text, order_index) VALUES ('reg-plus', '5. Acionar Lívia Castanho (Compliance) para validação do impacto regulatório', 4);
+INSERT INTO public.operacao_diagnostico (project_id, step_text, order_index) VALUES ('reg-plus', '6. Documentar o incidente no sistema de gestão de riscos', 5);
+INSERT INTO public.operacao_diagnostico (project_id, step_text, order_index) VALUES ('reg-plus', '7. Notificar Diretor de Compliance se prazo regulatório estiver em risco', 6);
+INSERT INTO public.operacao_contatos (project_id, problema, responsavel, canal, order_index) VALUES ('reg-plus', 'Alerta crítico de PLD', 'Lívia Castanho (Compliance)', '#pld-alertas', 0);
+INSERT INTO public.operacao_contatos (project_id, problema, responsavel, canal, order_index) VALUES ('reg-plus', 'Relatório atrasado para o Bacen', 'Gustavo Arruda + Otávio Reszka', '#reg-urgente', 1);
+INSERT INTO public.operacao_contatos (project_id, problema, responsavel, canal, order_index) VALUES ('reg-plus', 'Falha no pipeline de dados', 'Otávio Reszka (Tech Lead)', '#reg-plus-dev', 2);
+INSERT INTO public.operacao_contatos (project_id, problema, responsavel, canal, order_index) VALUES ('reg-plus', 'Questão de auditoria', 'Isabela Campos (Auditora)', '#auditoria-interna', 3);
+INSERT INTO public.operacao_logs (project_id, sistema, onde, filtro, order_index) VALUES ('reg-plus', 'Pipeline regulatório (Airflow)', 'Airflow UI → DAGs → bacen_report_pipeline', 'Tasks com status failed nas últimas 24h', 0);
+INSERT INTO public.operacao_logs (project_id, sistema, onde, filtro, order_index) VALUES ('reg-plus', 'Elasticsearch (eventos reg.)', 'Kibana → Index reg-events-*', 'level:ERROR AND tag:regulatorio | últimas 2h', 1);
+INSERT INTO public.operacao_logs (project_id, sistema, onde, filtro, order_index) VALUES ('reg-plus', 'Motor de regras PLD', 'Datadog → Services → pld-engine', 'alert_level:CRITICAL @operation:evaluate', 2);
+INSERT INTO public.operacao_logs (project_id, sistema, onde, filtro, order_index) VALUES ('reg-plus', 'Serviço de geração de relatórios', 'Datadog Logs → Index production', 'service:bacen-report-generator status:error', 3);
+INSERT INTO public.operacao_canais (project_id, nome, plataforma, descricao, order_index) VALUES ('reg-plus', '#reg-plus-geral', 'Slack', 'Canal principal do time Reg+ para comunicações do projeto.', 0);
+INSERT INTO public.operacao_canais (project_id, nome, plataforma, descricao, order_index) VALUES ('reg-plus', '#pld-alertas', 'Slack', 'Notificações automáticas de alertas de PLD e escalations.', 1);
+INSERT INTO public.operacao_canais (project_id, nome, plataforma, descricao, order_index) VALUES ('reg-plus', '#reg-urgente', 'Slack', 'Canal de emergência para incidentes com prazo regulatório em risco.', 2);
+INSERT INTO public.operacao_canais (project_id, nome, plataforma, descricao, order_index) VALUES ('reg-plus', '#auditoria-interna', 'Slack', 'Comunicação com o time de auditoria interna.', 3);
+INSERT INTO public.operacao_canais (project_id, nome, plataforma, descricao, order_index) VALUES ('reg-plus', 'Board Jira Reg+', 'Jira', 'Gestão de tarefas, épicos regulatórios e sprints.', 4);
+
+COMMIT;
+COMMIT;

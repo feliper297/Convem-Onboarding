@@ -1,0 +1,53 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+build/
+
+# Variáveis de ambiente — NUNCA commitar secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Mantém o template versionado (sem chaves reais)
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editores / IDE
+.idea/
+*.swp
+*.swo
+.vscode/*
+!.vscode/extensions.json
+
+# Vite
+*.local
+
+# Supabase CLI (desenvolvimento local)
+.branches/
+.temp/
+supabase/.temp/
+
+# Testes / cobertura
+coverage/
+
+# Cache
+.cache/
+.eslintcache
