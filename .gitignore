@@ -5,6 +5,7 @@ node_modules/
 dist/
 dist-ssr/
 build/
+storybook-static/
 
 # Variáveis de ambiente — NUNCA commitar secrets
 .env
@@ -51,3 +52,6 @@ coverage/
 # Cache
 .cache/
 .eslintcache
+
+*storybook.log
+storybook-static
