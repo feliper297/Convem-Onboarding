@@ -85,12 +85,13 @@ function NewProjectModal({ onSave, onClose }) {
               onChange={(v) => set("description", v)}
               placeholder="Descreva o propósito e contexto do projeto…"
               rows={3}
+              maxLength={200}
             />
           </Field>
 
           <div className="flex gap-3">
             <div className="flex-1">
-              <Field label="Tech Lead" required>
+              <Field label="Responsável" required>
                 <FInput
                   value={form.techLead}
                   onChange={(v) => set("techLead", v)}
@@ -99,7 +100,7 @@ function NewProjectModal({ onSave, onClose }) {
               </Field>
             </div>
             <div className="flex-1">
-              <Field label="E-mail do Tech Lead">
+              <Field label="E-mail do Responsável">
                 <FInput
                   value={form.techLeadEmail}
                   onChange={(v) => set("techLeadEmail", v)}

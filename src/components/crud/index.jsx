@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Trash2, Plus, Search } from 'lucide-react';
+import { X, Trash2, Plus, Search, Pencil } from 'lucide-react';
 
 function CrudModal({ project, title, icon: Icon, children, onClose, onSave, saveLabel = "Salvar" }) {
   return (
@@ -61,8 +61,8 @@ function FInput({ value, onChange, placeholder, type = "text", className = "" })
   return <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={`w-full px-3 py-2.5 rounded-lg text-[13px] outline-none ${className}`} style={{ border: "1px solid #E4E7EC", color: "#14171F" }} />;
 }
 
-function FTextarea({ value, onChange, placeholder, rows = 3 }) {
-  return <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={rows} className="w-full px-3 py-2.5 rounded-lg text-[13px] outline-none resize-none" style={{ border: "1px solid #E4E7EC", color: "#14171F" }} />;
+function FTextarea({ value, onChange, placeholder, rows = 3, maxLength }) {
+  return <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={rows} maxLength={maxLength} className="w-full px-3 py-2.5 rounded-lg text-[13px] outline-none resize-none" style={{ border: "1px solid #E4E7EC", color: "#14171F" }} />;
 }
 
 function FSelect({ value, onChange, options }) {

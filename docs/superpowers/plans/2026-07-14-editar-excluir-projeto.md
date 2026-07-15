@@ -140,6 +140,7 @@ function ProjectFormModal({ project, onSave, onClose }) {
               onChange={(v) => set("description", v)}
               placeholder="Descreva o propósito e contexto do projeto…"
               rows={3}
+              maxLength={200}
             />
           </Field>
 
