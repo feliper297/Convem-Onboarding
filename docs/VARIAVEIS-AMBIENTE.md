@@ -94,6 +94,21 @@ git check-ignore -v .env
 
 As chaves reais ficam apenas no `.env` local (gitignored) e nos painéis de deploy de produção.
 
+## Storage (Supabase)
+
+Antes de usar upload de fotos ou documentos, execute o script SQL no **Supabase Dashboard → SQL Editor**:
+
+```
+scripts/storage-setup.sql
+```
+
+Isso cria os buckets `avatars` e `documents` com políticas RLS.
+
+| Bucket      | Uso                          | Limite |
+|-------------|------------------------------|--------|
+| `avatars`   | Foto de perfil do usuário    | 2 MB   |
+| `documents` | Anexos na documentação       | 10 MB  |
+
 ## Troubleshooting
 
 | Problema | Solução |

@@ -28,7 +28,7 @@ export const Default = {
 export const Completo = {
   args: {
     value: 100,
-    color: '#0E7C66',
+    color: '#0B6B58',
   },
 };
 
@@ -43,7 +43,7 @@ export const PorProjeto = {
     <div className="flex flex-col gap-4 w-80">
       <div>
         <p className="text-xs text-ink-secondary mb-1.5">APP Banking — 75%</p>
-        <ProgressBar value={75} color="#0E7C66" />
+        <ProgressBar value={75} color="#0B6B58" />
       </div>
       <div>
         <p className="text-xs text-ink-secondary mb-1.5">Tupi — 40%</p>

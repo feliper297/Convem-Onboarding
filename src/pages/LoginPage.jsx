@@ -1,18 +1,38 @@
 import React, { useState } from 'react';
-import { Sparkles, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { LayoutGrid, Mail, Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Field, FInput } from '../components/crud';
+import PasswordInput from '../components/auth/PasswordInput';
 
-const BRAND = { color: '#0E7C66', soft: '#E6F4F1' };
-
-function LoginPage({ onSignIn, isSupabaseConfigured }) {
+function LoginPage({
+  onSignIn,
+  onResendConfirmation,
+  onRequestPasswordReset,
+  onGoToSignup,
+  isSupabaseConfigured,
+}) {
+  const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  const resetMessages = () => {
+    setError('');
+    setInfo('');
+    setNeedsConfirmation(false);
+  };
+
+  const switchMode = (nextMode) => {
+    resetMessages();
+    setMode(nextMode);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    resetMessages();
 
     if (!email.trim()) return setError('Informe seu e-mail.');
     if (!password) return setError('Informe sua senha.');
@@ -22,160 +42,218 @@ function LoginPage({ onSignIn, isSupabaseConfigured }) {
     setSubmitting(false);
 
     if (authError) {
-      setError(
-        authError.message === 'Invalid login credentials'
-          ? 'E-mail ou senha incorretos.'
-          : authError.message,
-      );
+      const msg = authError.message || '';
+      if (msg.toLowerCase().includes('email not confirmed')) {
+        setNeedsConfirmation(true);
+        setError('Seu e-mail ainda não foi confirmado. Verifique a caixa de entrada e o spam, ou reenvie o link abaixo.');
+        return;
+      }
+      setError(msg === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : msg);
     }
   };
 
+  const handleForgotSubmit = async (e) => {
+    e.preventDefault();
+    resetMessages();
+
+    if (!email.trim()) return setError('Informe seu e-mail.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setError('Informe um e-mail válido.');
+
+    setSubmitting(true);
+    const authError = await onRequestPasswordReset(email.trim());
+    setSubmitting(false);
+
+    if (authError) {
+      setError(authError.message || 'Não foi possível enviar o e-mail de recuperação.');
+      return;
+    }
+
+    setInfo('Enviamos um link para redefinir sua senha. Verifique sua caixa de entrada e a pasta de spam.');
+  };
+
+  const handleResend = async () => {
+    if (!email.trim()) return setError('Informe seu e-mail para reenviar a confirmação.');
+    setResending(true);
+    setError('');
+    setInfo('');
+    const resendError = await onResendConfirmation(email.trim());
+    setResending(false);
+    if (resendError) {
+      setError(resendError.message || 'Não foi possível reenviar o e-mail.');
+      return;
+    }
+    setInfo('E-mail de confirmação reenviado. Verifique também a pasta de spam.');
+  };
+
+  const isForgot = mode === 'forgot';
+
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4 sm:p-6"
-      style={{ background: '#F7F8FA', fontFamily: "'Inter', sans-serif" }}
-    >
-      <div className="w-full max-w-[920px] grid lg:grid-cols-2 rounded-2xl overflow-hidden shadow-sm" style={{ border: '1px solid #E4E7EC' }}>
-        <div
-          className="hidden lg:flex flex-col justify-between p-10 relative overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, #EAF6F2 0%, #FFFFFF 70%)' }}
-        >
-          <div
-            className="absolute -right-16 -top-16 w-72 h-72 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(14,124,102,0.18), transparent 70%)' }}
-          />
-          <div className="relative">
-            <div className="flex items-center gap-2.5 mb-10">
-              <div
-                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: BRAND.color }}
-              >
-                <Sparkles size={18} color="#fff" />
+    <div className="auth-panel">
+      <div className="auth-card">
+        <div className="auth-brand-panel">
+          <div>
+            <div className="flex items-center gap-2.5 mb-8">
+              <div className="w-8 h-8 rounded-md flex items-center justify-center bg-brand">
+                <LayoutGrid size={16} color="#fff" strokeWidth={2.25} />
               </div>
-              <span
-                className="text-[15px] font-semibold tracking-tight"
-                style={{ color: '#14171F', fontFamily: "'Space Grotesk', sans-serif" }}
-              >
-                Portal Onboarding
-              </span>
+              <span className="text-sm font-semibold tracking-tight text-ink-primary">Portal Onboarding</span>
             </div>
-            <span
-              className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold px-2.5 py-1 rounded-full mb-4"
-              style={{ background: BRAND.soft, color: BRAND.color }}
-            >
-              <Sparkles size={12} /> Bem-vindo de volta
-            </span>
-            <h1
-              className="text-[28px] font-bold mb-3 leading-tight"
-              style={{ color: '#14171F', fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              Sua jornada de onboarding começa aqui.
+            <h1 className="text-2xl font-semibold leading-tight mb-3 text-ink-primary">
+              {isForgot ? 'Recuperar acesso' : 'Central de onboarding corporativo'}
             </h1>
-            <p className="text-[14px] leading-relaxed max-w-sm" style={{ color: '#5B6472' }}>
-              Acesse trilhas, documentação e times dos projetos em um só lugar.
+            <p className="text-sm text-ink-secondary leading-relaxed max-w-sm">
+              {isForgot
+                ? 'Informe seu e-mail corporativo e enviaremos um link para redefinir sua senha.'
+                : 'Trilhas, documentação e informações dos projetos em um único ambiente interno.'}
             </p>
           </div>
-          <p className="relative text-[12px]" style={{ color: '#9AA2B1' }}>
-            © Portal de Onboarding · Acesso restrito a colaboradores
-          </p>
+          <p className="text-xs text-ink-muted">© Portal de Onboarding · Acesso restrito</p>
         </div>
 
-        <div className="flex flex-col justify-center p-6 sm:p-10" style={{ background: '#fff' }}>
+        <div className="auth-form-panel">
           <div className="lg:hidden flex items-center gap-2.5 mb-8">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: BRAND.color }}
-            >
-              <Sparkles size={16} color="#fff" />
+            <div className="w-8 h-8 rounded-md flex items-center justify-center bg-brand">
+              <LayoutGrid size={16} color="#fff" strokeWidth={2.25} />
             </div>
-            <span
-              className="text-[14px] font-semibold"
-              style={{ color: '#14171F', fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              Portal Onboarding
-            </span>
+            <span className="text-sm font-semibold text-ink-primary">Portal Onboarding</span>
           </div>
 
-          <div className="mb-8">
-            <h2
-              className="text-[22px] font-bold mb-1.5"
-              style={{ color: '#14171F', fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              Entrar na conta
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-ink-primary mb-1">
+              {isForgot ? 'Esqueci minha senha' : 'Entrar na conta'}
             </h2>
-            <p className="text-[13px]" style={{ color: '#5B6472' }}>
-              Use suas credenciais corporativas para acessar o portal.
+            <p className="text-sm text-ink-secondary">
+              {isForgot ? 'Enviaremos instruções por e-mail.' : 'Use suas credenciais corporativas.'}
             </p>
           </div>
 
           {!isSupabaseConfigured && (
-            <p
-              className="text-[12px] font-medium px-3 py-2.5 rounded-lg mb-4"
-              style={{ background: '#FEF2F2', color: '#EF4444' }}
-            >
+            <p className="alert-error mb-4">
               Supabase não configurado. Verifique o arquivo <code>.env</code>.
             </p>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <Field label="E-mail" required>
-              <div className="relative">
-                <Mail
-                  size={15}
-                  color="#9AA2B1"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                />
-                <FInput
-                  value={email}
-                  onChange={setEmail}
-                  placeholder="seu.email@empresa.com"
-                  type="email"
-                  className="pl-9"
-                />
-              </div>
-            </Field>
+          {isForgot ? (
+            <form onSubmit={handleForgotSubmit} className="flex flex-col gap-4">
+              <Field label="E-mail" required>
+                <div className="relative">
+                  <Mail
+                    size={15}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-ink-muted"
+                  />
+                  <FInput
+                    value={email}
+                    onChange={setEmail}
+                    placeholder="seu.email@empresa.com"
+                    type="email"
+                    className="pl-9"
+                  />
+                </div>
+              </Field>
 
-            <Field label="Senha" required>
-              <div className="relative">
-                <Lock
-                  size={15}
-                  color="#9AA2B1"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                />
-                <FInput
-                  value={password}
-                  onChange={setPassword}
-                  placeholder="••••••••"
-                  type="password"
-                  className="pl-9"
-                />
-              </div>
-            </Field>
+              {error && <p className="alert-error">{error}</p>}
+              {info && <p className="alert-info">{info}</p>}
 
-            {error && (
-              <p
-                className="text-[12px] font-medium px-3 py-2 rounded-lg"
-                style={{ background: '#FEF2F2', color: '#EF4444' }}
+              <button
+                type="submit"
+                disabled={submitting || !isSupabaseConfigured}
+                className="btn-primary w-full py-2.5 mt-1"
               >
-                {error}
-              </p>
-            )}
+                {submitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Enviando…
+                  </>
+                ) : (
+                  <>
+                    Enviar link de recuperação
+                    <ArrowRight size={15} />
+                  </>
+                )}
+              </button>
 
-            <button
-              type="submit"
-              disabled={submitting || !isSupabaseConfigured}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-[13px] font-semibold text-white transition-opacity mt-1 disabled:opacity-50"
-              style={{ background: BRAND.color }}
-              onMouseEnter={(e) => { if (!submitting) e.currentTarget.style.opacity = 0.88; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = submitting ? 0.5 : 1; }}
-            >
-              {submitting ? (
-                <><Loader2 size={16} className="animate-spin" /> Entrando…</>
-              ) : (
-                <>Entrar <ArrowRight size={15} /></>
+              <button
+                type="button"
+                onClick={() => switchMode('login')}
+                className="btn-secondary w-full"
+              >
+                <ArrowLeft size={15} />
+                Voltar ao login
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <Field label="E-mail" required>
+                <div className="relative">
+                  <Mail
+                    size={15}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-ink-muted"
+                  />
+                  <FInput
+                    value={email}
+                    onChange={setEmail}
+                    placeholder="seu.email@empresa.com"
+                    type="email"
+                    className="pl-9"
+                  />
+                </div>
+              </Field>
+
+              <div className="flex flex-col gap-1.5">
+                <Field label="Senha" required>
+                  <PasswordInput value={password} onChange={setPassword} placeholder="••••••••" />
+                </Field>
+                <button
+                  type="button"
+                  onClick={() => switchMode('forgot')}
+                  className="text-xs font-semibold text-brand hover:underline text-right"
+                >
+                  Esqueci minha senha
+                </button>
+              </div>
+
+              {error && <p className="alert-error">{error}</p>}
+              {info && <p className="alert-info">{info}</p>}
+
+              {needsConfirmation && (
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resending}
+                  className="btn-secondary w-full disabled:opacity-50"
+                >
+                  {resending ? 'Reenviando…' : 'Reenviar e-mail de confirmação'}
+                </button>
               )}
-            </button>
-          </form>
+
+              <button
+                type="submit"
+                disabled={submitting || !isSupabaseConfigured}
+                className="btn-primary w-full py-2.5 mt-1"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Entrando…
+                  </>
+                ) : (
+                  <>
+                    Entrar
+                    <ArrowRight size={15} />
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+
+          {!isForgot && (
+            <p className="text-sm text-center mt-6 text-ink-secondary">
+              Ainda não tem conta?{' '}
+              <button type="button" onClick={onGoToSignup} className="font-semibold text-brand hover:underline">
+                Criar conta
+              </button>
+            </p>
+          )}
         </div>
       </div>
     </div>

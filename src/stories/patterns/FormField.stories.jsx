@@ -56,7 +56,7 @@ export const FormularioSimples = {
     const [email, setEmail] = useState('');
 
     return (
-      <div className="w-80 flex flex-col gap-4 p-6 rounded-2xl bg-surface border border-border">
+      <div className="w-80 flex flex-col gap-4 p-6 rounded-lg bg-surface border border-border">
         <Field label="Nome" required>
           <FInput value={nome} onChange={setNome} placeholder="Seu nome" />
         </Field>

@@ -9,37 +9,48 @@ export default {
     extend: {
       colors: {
         brand: {
-          DEFAULT: '#0E7C66',
-          soft: '#E6F4F1',
+          DEFAULT: '#0B6B58',
+          dark: '#095C4C',
+          soft: '#E8F3F0',
         },
         ink: {
-          primary: '#14171F',
-          secondary: '#5B6472',
-          muted: '#9AA2B1',
-          faint: '#C2C8D2',
+          primary: '#111827',
+          secondary: '#4B5563',
+          muted: '#9CA3AF',
+          faint: '#D1D5DB',
         },
         surface: {
           DEFAULT: '#FFFFFF',
-          muted: '#F7F8FA',
+          muted: '#F3F4F6',
+          subtle: '#F9FAFB',
         },
         border: {
-          DEFAULT: '#E4E7EC',
+          DEFAULT: '#E5E7EB',
+          strong: '#D1D5DB',
         },
         danger: {
-          DEFAULT: '#EF4444',
+          DEFAULT: '#DC2626',
           soft: '#FEF2F2',
         },
         project: {
-          banking: '#0E7C66',
-          tupi: '#2754C5',
+          banking: '#0B6B58',
+          tupi: '#1D4ED8',
           board: '#B45309',
-          regplus: '#6E3AAE',
+          regplus: '#6D28D9',
         },
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Space Grotesk', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['IBM Plex Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['IBM Plex Mono', 'ui-monospace', 'monospace'],
+      },
+      borderRadius: {
+        DEFAULT: '6px',
+        md: '6px',
+        lg: '8px',
+      },
+      boxShadow: {
+        card: '0 1px 2px rgba(17, 24, 39, 0.05)',
+        elevated: '0 4px 12px rgba(17, 24, 39, 0.08)',
       },
     },
   },

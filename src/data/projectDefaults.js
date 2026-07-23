@@ -26,10 +26,10 @@ const DEFAULT_DOCS = {
 };
 
 const PROJECT_COLORS = [
-  { color: "#0E7C66", soft: "#E6F4F1", label: "Verde" },
-  { color: "#2754C5", soft: "#EAF0FD", label: "Azul" },
-  { color: "#B45309", soft: "#FDF1E3", label: "Laranja" },
-  { color: "#6E3AAE", soft: "#F1EAFB", label: "Roxo" },
+  { color: "#0B6B58", soft: "#E8F3F0", label: "Verde" },
+  { color: "#1D4ED8", soft: "#EFF6FF", label: "Azul" },
+  { color: "#B45309", soft: "#FFFBEB", label: "Laranja" },
+  { color: "#6D28D9", soft: "#F5F3FF", label: "Roxo" },
 ];
 
 const PROJECT_ICONS = [
@@ -97,6 +97,7 @@ function createProject({ id, name, tagline, description, techLead, techLeadEmail
 
 export {
   DEFAULT_TRILHA,
+  DEFAULT_DOCS,
   PROJECT_COLORS,
   PROJECT_ICONS,
   slugify,

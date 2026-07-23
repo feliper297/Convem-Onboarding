@@ -14,7 +14,7 @@ function TypeSample({ item }) {
           fontFamily: family,
           fontSize: item.size,
           fontWeight: item.weight,
-          color: '#14171F',
+          color: 'var(--ink-primary)',
         }}
       >
         {item.sample}
@@ -41,7 +41,7 @@ export const Familias = {
       {Object.entries(typography.families).map(([name, family]) => (
         <div key={name} className="p-4 rounded-xl bg-surface border border-border">
           <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">{name}</p>
-          <p className="text-2xl" style={{ fontFamily: family, color: '#14171F' }}>
+          <p className="text-2xl" style={{ fontFamily: family, color: 'var(--ink-primary)' }}>
             Portal de Onboarding Convem
           </p>
           <p className="text-xs text-ink-faint font-mono mt-1">{family}</p>

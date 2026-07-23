@@ -3,10 +3,14 @@ import { Inbox } from 'lucide-react';
 
 function EmptyState({ icon: Icon = Inbox, title, description }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-16 px-6 rounded-2xl border border-dashed" style={{ borderColor: "#E4E7EC" }}>
-      <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: "#F7F8FA" }}><Icon size={20} color="#9AA2B1" /></div>
-      <p className="font-semibold text-[15px]" style={{ color: "#14171F" }}>{title}</p>
-      {description && <p className="text-sm mt-1 max-w-sm" style={{ color: "#5B6472" }}>{description}</p>}
+    <div className="flex flex-col items-center justify-center text-center py-14 px-6 rounded-lg border border-dashed border-border bg-surface-subtle">
+      <div className="w-10 h-10 rounded-md flex items-center justify-center mb-3 bg-surface border border-border">
+        <Icon size={18} className="text-ink-muted" />
+      </div>
+      <p className="font-medium text-sm text-ink-primary">{title}</p>
+      {description && (
+        <p className="text-sm text-ink-secondary mt-1 max-w-sm">{description}</p>
+      )}
     </div>
   );
 }

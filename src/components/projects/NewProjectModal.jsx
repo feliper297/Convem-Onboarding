@@ -3,7 +3,7 @@ import { X, Plus } from 'lucide-react';
 import { Field, FInput, FTextarea } from '../crud';
 import { PROJECT_COLORS, PROJECT_ICONS } from '../../data/projectDefaults';
 
-const BRAND = { color: "#0E7C66", soft: "#E6F4F1" };
+const BRAND = { color: "#0B6B58", soft: "#E8F3F0" };
 
 const EMPTY_FORM = {
   name: "",
@@ -48,13 +48,13 @@ function NewProjectModal({ onSave, onClose }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
+        className="w-full max-w-lg rounded-lg shadow-2xl overflow-hidden"
         style={{ background: "#fff", maxHeight: "90vh", overflowY: "auto" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div
           className="flex items-center justify-between px-6 py-4 sticky top-0"
-          style={{ borderBottom: "1px solid #E4E7EC", background: "#fff" }}
+          style={{ borderBottom: "1px solid #E5E7EB", background: "#fff" }}
         >
           <div className="flex items-center gap-2.5">
             <span
@@ -63,9 +63,9 @@ function NewProjectModal({ onSave, onClose }) {
             >
               <Plus size={14} color={BRAND.color} />
             </span>
-            <p className="text-[14px] font-bold" style={{ color: "#14171F" }}>Novo Projeto</p>
+            <p className="text-[14px] font-bold" style={{ color: "var(--ink-primary)" }}>Novo Projeto</p>
           </div>
-          <button onClick={onClose} style={{ color: "#9AA2B1" }} aria-label="Fechar">
+          <button onClick={onClose} style={{ color: "#9CA3AF" }} aria-label="Fechar">
             <X size={18} />
           </button>
         </div>
@@ -123,11 +123,11 @@ function NewProjectModal({ onSave, onClose }) {
                     onClick={() => set("iconId", id)}
                     className="flex flex-col items-center gap-1 p-2.5 rounded-lg transition-colors"
                     style={{
-                      background: selected ? accent.soft : "#F7F8FA",
-                      border: selected ? `2px solid ${accent.color}` : "2px solid #E4E7EC",
+                      background: selected ? accent.soft : "#F3F4F6",
+                      border: selected ? `2px solid ${accent.color}` : "2px solid #E5E7EB",
                     }}
                   >
-                    <Icon size={18} color={selected ? accent.color : "#5B6472"} />
+                    <Icon size={18} color={selected ? accent.color : "#4B5563"} />
                   </button>
                 );
               })}
@@ -146,9 +146,9 @@ function NewProjectModal({ onSave, onClose }) {
                     onClick={() => set("colorIndex", idx)}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] font-semibold transition-colors"
                     style={{
-                      background: selected ? soft : "#F7F8FA",
-                      color: selected ? color : "#5B6472",
-                      border: selected ? `2px solid ${color}` : "2px solid #E4E7EC",
+                      background: selected ? soft : "#F3F4F6",
+                      color: selected ? color : "#4B5563",
+                      border: selected ? `2px solid ${color}` : "2px solid #E5E7EB",
                     }}
                   >
                     <span
@@ -174,12 +174,12 @@ function NewProjectModal({ onSave, onClose }) {
 
         <div
           className="flex items-center justify-end gap-2.5 px-6 py-4 sticky bottom-0"
-          style={{ borderTop: "1px solid #E4E7EC", background: "#fff" }}
+          style={{ borderTop: "1px solid #E5E7EB", background: "#fff" }}
         >
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-[13px] font-semibold"
-            style={{ background: "#F7F8FA", color: "#5B6472", border: "1px solid #E4E7EC" }}
+            style={{ background: "#F3F4F6", color: "#4B5563", border: "1px solid #E5E7EB" }}
           >
             Cancelar
           </button>

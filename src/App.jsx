@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import useToasts from './hooks/useToasts';
 import useAuth from './hooks/useAuth';
 import Sidebar from './components/layout/Sidebar';
@@ -11,20 +11,44 @@ import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
 import ProjectPage from './pages/project/ProjectPage';
 import LoginPage from './pages/LoginPage';
-import NewProjectModal from './components/projects/NewProjectModal';
-import { PROJECTS as SEED_PROJECTS } from './data/projects';
-import { slugify, createProject } from './data/projectDefaults';
+import SignupPage from './pages/SignupPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import BackOfficePage from './pages/backoffice/BackOfficePage';
+import ProjectFormModal from './components/projects/ProjectFormModal';
+import { slugify } from './data/projectDefaults';
+import { fetchProjects, fetchProjectById, persistProject, updateProject, deleteProject } from './services/projectService';
+import { canManageBackOffice } from './utils/permissions';
+import {
+  fetchTrilhaProgress,
+  toggleTrilhaProgress,
+} from './services/userService';
 
 export default function App() {
-  const { session, loading, signIn, signOut, userName, userInitials, isAuthenticated, isSupabaseConfigured } = useAuth();
+  const { session, profile, loading, signIn, signUp, resendConfirmation, requestPasswordReset, completePasswordRecovery, pendingRecovery, signOut, refreshProfile, userName, userInitials, isAuthenticated, isSupabaseConfigured } = useAuth();
+  const userId = session?.user?.id;
+  const [authView, setAuthView] = useState('login');
   const [route, setRoute] = useState({ view: 'dashboard' });
   const [searchOpen, setSearchOpen] = useState(false);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
-  const [projects, setProjects] = useState(() => [...SEED_PROJECTS]);
-  const [favorites, setFavorites] = useState(['app-banking']);
-  const [completed, setCompleted] = useState({ 'app-banking': [0] });
-  const [docsRead, setDocsRead] = useState({});
+  const [projectSaving, setProjectSaving] = useState(false);
+  const [projectDeleting, setProjectDeleting] = useState(false);
+  const [projectsLoading, setProjectsLoading] = useState(isSupabaseConfigured);
+  const [userDataLoading, setUserDataLoading] = useState(isSupabaseConfigured);
+  const [projects, setProjects] = useState([]);
+  const [completed, setCompleted] = useState({});
   const { toasts, push } = useToasts();
+
+  const loadProjects = useCallback(async () => {
+    const loaded = await fetchProjects();
+    setProjects(loaded);
+    return loaded;
+  }, []);
+
+  const refreshProject = useCallback(async (projectId) => {
+    const updated = await fetchProjectById(projectId);
+    setProjects((prev) => prev.map((p) => (p.id === projectId ? updated : p)));
+    return updated;
+  }, []);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -36,61 +60,224 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, [isAuthenticated]);
 
-  const toggleFavorite = (id) => setFavorites((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
-  const toggleTrilhaItem = (projectId, idx) => setCompleted((c) => {
-    const cur = c[projectId] || [];
-    return { ...c, [projectId]: cur.includes(idx) ? cur.filter((i) => i !== idx) : [...cur, idx] };
-  });
-  const toggleDocsRead = (projectId) => setDocsRead((d) => ({ ...d, [projectId]: !d[projectId] }));
+  useEffect(() => {
+    if (!isAuthenticated || !isSupabaseConfigured) {
+      setProjectsLoading(false);
+      setUserDataLoading(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    loadProjects()
+      .catch((err) => {
+        console.error('Erro ao carregar projetos:', err);
+        if (!cancelled) push('Não foi possível carregar os projetos.', 'default');
+      })
+      .finally(() => {
+        if (!cancelled) setProjectsLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [isAuthenticated, isSupabaseConfigured, loadProjects]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !isSupabaseConfigured || !userId) {
+      setUserDataLoading(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    fetchTrilhaProgress(userId)
+      .then((progress) => {
+        if (!cancelled) {
+          setCompleted(progress);
+        }
+      })
+      .catch((err) => {
+        console.error('Erro ao carregar dados do usuário:', err);
+      })
+      .finally(() => {
+        if (!cancelled) setUserDataLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [isAuthenticated, isSupabaseConfigured, userId]);
+
+  const toggleTrilhaItem = async (projectId, trilhaItemId) => {
+    if (!userId) return;
+    const cur = completed[projectId] || [];
+    const wasCompleted = cur.includes(trilhaItemId);
+    setCompleted((c) => ({
+      ...c,
+      [projectId]: wasCompleted
+        ? cur.filter((id) => id !== trilhaItemId)
+        : [...cur, trilhaItemId],
+    }));
+    try {
+      await toggleTrilhaProgress(userId, projectId, trilhaItemId);
+    } catch (err) {
+      console.error('Erro ao atualizar progresso:', err);
+      setCompleted((c) => ({
+        ...c,
+        [projectId]: wasCompleted ? [...cur, trilhaItemId] : cur.filter((id) => id !== trilhaItemId),
+      }));
+      push('Não foi possível salvar o progresso da trilha.', 'default');
+    }
+  };
+
+  useEffect(() => {
+    if (route.view === 'backoffice' && profile && !canManageBackOffice(profile)) {
+      setRoute({ view: 'dashboard' });
+    }
+  }, [route.view, profile]);
+
   const currentProject = route.view === 'project' ? projects.find((p) => p.id === route.projectId) : null;
 
-  const handleCreateProject = (data) => {
+  const handleCreateProject = async (data) => {
     const baseId = slugify(data.name);
     let id = baseId || 'projeto';
     let n = 1;
     while (projects.some((p) => p.id === id)) { id = `${baseId}-${n++}`; }
-    const newProject = createProject({ id, ...data });
-    setProjects((prev) => [...prev, newProject]);
-    setNewProjectOpen(false);
-    push(`Projeto "${newProject.name}" criado com sucesso`, 'success');
-    setRoute({ view: 'project', projectId: newProject.id, tab: 'overview' });
+
+    if (!isSupabaseConfigured) {
+      push('Supabase não configurado. Não é possível criar projetos.', 'default');
+      return;
+    }
+
+    setProjectSaving(true);
+    try {
+      const newProject = await persistProject({ id, ...data });
+      setProjects((prev) => [...prev, newProject]);
+      setNewProjectOpen(false);
+      push(`Projeto "${newProject.name}" criado com sucesso`, 'success');
+      setRoute({ view: 'project', projectId: newProject.id, tab: 'overview' });
+    } catch (err) {
+      console.error('Erro ao salvar projeto:', err);
+      push(
+        err.message?.includes('row-level security')
+          ? 'Sem permissão para salvar. Apenas admin e gestor podem gerenciar projetos.'
+          : `Erro ao salvar projeto: ${err.message || 'tente novamente.'}`,
+        'default',
+      );
+    } finally {
+      setProjectSaving(false);
+    }
+  };
+
+  const handleUpdateProject = async (project, data, onSuccess) => {
+    if (!isSupabaseConfigured || projectSaving) return;
+
+    setProjectSaving(true);
+    try {
+      const updated = await updateProject(project.id, data);
+      setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+      push(`Projeto "${updated.name}" atualizado.`, 'success');
+      onSuccess?.();
+    } catch (err) {
+      console.error('Erro ao atualizar projeto:', err);
+      push(
+        err.message?.includes('row-level security')
+          ? 'Sem permissão para editar. Apenas admin e gestor podem gerenciar projetos.'
+          : `Erro ao atualizar projeto: ${err.message || 'tente novamente.'}`,
+        'default',
+      );
+    } finally {
+      setProjectSaving(false);
+    }
+  };
+
+  const handleDeleteProject = async (project, onSuccess) => {
+    if (!isSupabaseConfigured || projectDeleting) return;
+
+    setProjectDeleting(true);
+    try {
+      await deleteProject(project.id);
+      setProjects((prev) => prev.filter((p) => p.id !== project.id));
+      if (route.view === 'project' && route.projectId === project.id) {
+        setRoute({ view: 'dashboard' });
+      }
+      push(`Projeto "${project.name}" excluído.`, 'success');
+      onSuccess?.();
+    } catch (err) {
+      console.error('Erro ao excluir projeto:', err);
+      push(
+        err.message?.includes('row-level security')
+          ? 'Sem permissão para excluir. Apenas admin e gestor podem gerenciar projetos.'
+          : `Erro ao excluir projeto: ${err.message || 'tente novamente.'}`,
+        'default',
+      );
+    } finally {
+      setProjectDeleting(false);
+    }
   };
 
   const handleLogout = async () => {
     push('Você saiu da sua conta.', 'success');
     setRoute({ view: 'dashboard' });
+    setAuthView('login');
     setSearchOpen(false);
     setNewProjectOpen(false);
+    setCompleted({});
     await signOut();
   };
 
-  if (loading) {
+  if (loading && !pendingRecovery) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F7F8FA' }}>
+      <div className="min-h-screen flex items-center justify-center bg-surface-muted">
         <Loading />
       </div>
+    );
+  }
+
+  if (pendingRecovery) {
+    return (
+      <>
+        <ResetPasswordPage
+          onComplete={completePasswordRecovery}
+          isSupabaseConfigured={isSupabaseConfigured}
+        />
+        <ToastStack toasts={toasts} />
+      </>
     );
   }
 
   if (!isAuthenticated) {
     return (
       <>
-        <LoginPage onSignIn={signIn} isSupabaseConfigured={isSupabaseConfigured} />
+        {authView === 'login' ? (
+          <LoginPage
+            onSignIn={signIn}
+            onResendConfirmation={resendConfirmation}
+            onRequestPasswordReset={requestPasswordReset}
+            onGoToSignup={() => setAuthView('signup')}
+            isSupabaseConfigured={isSupabaseConfigured}
+          />
+        ) : (
+          <SignupPage
+            onSignUp={signUp}
+            onResendConfirmation={resendConfirmation}
+            onGoToLogin={() => setAuthView('login')}
+            isSupabaseConfigured={isSupabaseConfigured}
+          />
+        )}
         <ToastStack toasts={toasts} />
       </>
     );
   }
 
+  if (projectsLoading || userDataLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface-muted">
+        <Loading />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex w-full min-h-screen" style={{ background: '#F7F8FA', fontFamily: "'Inter', sans-serif" }}>
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        * { box-sizing: border-box; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-thumb { background: #D6DAE2; border-radius: 8px; }
-        button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid #0E7C66; outline-offset: 2px; border-radius: 4px; }
-      `}</style>
-      <Sidebar route={route} setRoute={setRoute} projects={projects} />
+    <div className="app-shell">
+      <Sidebar route={route} setRoute={setRoute} projects={projects} profile={profile} />
       <div className="flex-1 flex flex-col min-w-0">
         <Header
           route={route}
@@ -98,19 +285,28 @@ export default function App() {
           onOpenSearch={() => setSearchOpen(true)}
           onOpenNewProject={() => setNewProjectOpen(true)}
           onLogout={handleLogout}
-          favorites={favorites}
           currentProject={currentProject}
-          userInitials={userInitials}
+          userName={userName}
+          userAvatarUrl={profile?.avatarUrl}
         />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+        <main className="flex-1 p-4 sm:p-5 lg:p-6 overflow-x-hidden">
           {route.view === 'dashboard' && (
             <Dashboard
               setRoute={setRoute}
               projects={projects}
               completed={completed}
-              favorites={favorites}
-              toggleFavorite={toggleFavorite}
               userName={userName}
+            />
+          )}
+          {route.view === 'backoffice' && canManageBackOffice(profile) && (
+            <BackOfficePage
+              projects={projects}
+              pushToast={push}
+              onUpdateProject={handleUpdateProject}
+              onDeleteProject={handleDeleteProject}
+              projectSaving={projectSaving}
+              projectDeleting={projectDeleting}
+              canManageUsers={profile?.role === 'admin'}
             />
           )}
           {route.view === 'project' && currentProject && (
@@ -120,19 +316,32 @@ export default function App() {
               setRoute={setRoute}
               completed={completed}
               toggleTrilhaItem={toggleTrilhaItem}
-              docsRead={docsRead}
-              toggleDocsRead={toggleDocsRead}
               pushToast={push}
+              onRefreshProject={() => refreshProject(currentProject.id)}
+              userId={userId}
             />
           )}
-          {route.view === 'settings' && <SettingsPage />}
+          {route.view === 'settings' && (
+            <SettingsPage
+              userId={userId}
+              userEmail={session?.user?.email}
+              pushToast={push}
+              onProfileUpdated={refreshProfile}
+            />
+          )}
           {route.view === 'profile' && (
-            <ProfilePage userName={userName} completed={completed} projects={projects} />
+            <ProfilePage userName={userName} profile={profile} completed={completed} projects={projects} />
           )}
         </main>
       </div>
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} onPick={(r) => setRoute(r)} projects={projects} />
-      {newProjectOpen && <NewProjectModal onSave={handleCreateProject} onClose={() => setNewProjectOpen(false)} />}
+      {newProjectOpen && (
+        <ProjectFormModal
+          onSave={handleCreateProject}
+          onClose={() => setNewProjectOpen(false)}
+          saving={projectSaving}
+        />
+      )}
       <ToastStack toasts={toasts} />
     </div>
   );
