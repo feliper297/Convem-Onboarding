@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { NAV_ITEMS } from '../../data/navigation';
 import ProgressBar from '../../components/ui/ProgressBar';
 import Loading from '../../components/ui/Loading';
@@ -29,6 +30,9 @@ function ProjectPage({
   onRefreshProject,
   userId,
   canEditContent = false,
+  canManageProject = false,
+  onEditProject,
+  onDeleteProject,
 }) {
   const [loading, setLoading] = useState(true);
   const [docsCategory, setDocsCategory] = useState(null);
@@ -89,6 +93,27 @@ function ProjectPage({
             <p className="text-xs text-ink-secondary break-words mt-0.5">{project.tagline}</p>
           </div>
         </div>
+
+        {canManageProject && (
+          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => onEditProject?.(project)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-semibold text-brand bg-brand-soft border border-brand/20 hover:opacity-90"
+            >
+              <Pencil size={13} />
+              Editar
+            </button>
+            <button
+              type="button"
+              onClick={() => onDeleteProject?.(project)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-semibold text-red-600 bg-red-50 border border-red-100 hover:opacity-90"
+            >
+              <Trash2 size={13} />
+              Excluir
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="card-padded">

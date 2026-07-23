@@ -15,6 +15,7 @@ import SignupPage from './pages/SignupPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import BackOfficePage from './pages/backoffice/BackOfficePage';
 import ProjectFormModal from './components/projects/ProjectFormModal';
+import DeleteProjectModal from './components/projects/DeleteProjectModal';
 import { slugify } from './data/projectDefaults';
 import { fetchProjects, fetchProjectById, persistProject, updateProject, deleteProject } from './services/projectService';
 import { canManageBackOffice, canManageProjectContent } from './utils/permissions';
@@ -29,6 +30,8 @@ export default function App() {
   const [route, setRoute] = useState({ view: 'dashboard' });
   const [searchOpen, setSearchOpen] = useState(false);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
+  const [deletingProject, setDeletingProject] = useState(null);
   const [projectSaving, setProjectSaving] = useState(false);
   const [projectDeleting, setProjectDeleting] = useState(false);
   const [projectsLoading, setProjectsLoading] = useState(isSupabaseConfigured);
@@ -53,7 +56,12 @@ export default function App() {
     const onKey = (e) => {
       if (!isAuthenticated) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setSearchOpen(true); }
-      if (e.key === 'Escape') { setSearchOpen(false); setNewProjectOpen(false); }
+      if (e.key === 'Escape') {
+        setSearchOpen(false);
+        setNewProjectOpen(false);
+        setEditingProject(null);
+        setDeletingProject(null);
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -319,6 +327,9 @@ export default function App() {
               onRefreshProject={() => refreshProject(currentProject.id)}
               userId={userId}
               canEditContent={canManageProjectContent(profile, currentProject.id, assignedProjectIds)}
+              canManageProject={canManageBackOffice(profile)}
+              onEditProject={setEditingProject}
+              onDeleteProject={setDeletingProject}
             />
           )}
           {route.view === 'settings' && (
@@ -340,6 +351,22 @@ export default function App() {
           onSave={handleCreateProject}
           onClose={() => setNewProjectOpen(false)}
           saving={projectSaving}
+        />
+      )}
+      {editingProject && (
+        <ProjectFormModal
+          project={editingProject}
+          saving={projectSaving}
+          onSave={(data) => handleUpdateProject(editingProject, data, () => setEditingProject(null))}
+          onClose={() => setEditingProject(null)}
+        />
+      )}
+      {deletingProject && (
+        <DeleteProjectModal
+          project={deletingProject}
+          deleting={projectDeleting}
+          onConfirm={() => handleDeleteProject(deletingProject, () => setDeletingProject(null))}
+          onClose={() => setDeletingProject(null)}
         />
       )}
       <ToastStack toasts={toasts} />

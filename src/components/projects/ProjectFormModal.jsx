@@ -19,7 +19,7 @@ function deriveFormFromProject(project) {
   const colorIndex = PROJECT_COLORS.findIndex((c) => c.color === project.color);
   return {
     name: project.name || '',
-    description: project.description || '',
+    description: project.description || project.tagline || '',
     techLead: project.team?.lead || '',
     techLeadEmail: project.contacts?.[0]?.contact || '',
     iconId: iconEntry ? iconEntry.id : PROJECT_ICONS[0].id,
