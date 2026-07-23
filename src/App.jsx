@@ -24,8 +24,7 @@ import {
 } from './services/userService';
 
 export default function App() {
-  const { session, profile, loading, signIn, signUp, resendConfirmation, requestPasswordReset, completePasswordRecovery, pendingRecovery, signOut, refreshProfile, userName, userInitials, isAuthenticated, isSupabaseConfigured } = useAuth();
-  const userId = session?.user?.id;
+  const { userId, userEmail, profile, loading, signIn, signUp, resendConfirmation, requestPasswordReset, completePasswordRecovery, pendingRecovery, signOut, refreshProfile, userName, userInitials, isAuthenticated, isSupabaseConfigured } = useAuth();
   const [authView, setAuthView] = useState('login');
   const [route, setRoute] = useState({ view: 'dashboard' });
   const [searchOpen, setSearchOpen] = useState(false);
@@ -142,7 +141,7 @@ export default function App() {
     while (projects.some((p) => p.id === id)) { id = `${baseId}-${n++}`; }
 
     if (!isSupabaseConfigured) {
-      push('Supabase não configurado. Não é possível criar projetos.', 'default');
+      push('Serviço indisponível. Entre em contato com o administrador.', 'default');
       return;
     }
 
@@ -324,7 +323,7 @@ export default function App() {
           {route.view === 'settings' && (
             <SettingsPage
               userId={userId}
-              userEmail={session?.user?.email}
+              userEmail={userEmail}
               pushToast={push}
               onProfileUpdated={refreshProfile}
             />

@@ -54,7 +54,7 @@ function ResetPasswordPage({ onComplete, isSupabaseConfigured }) {
 
           {!isSupabaseConfigured && (
             <p className="alert-error mb-4">
-              Supabase não configurado. Verifique o arquivo <code>.env</code>.
+              Serviço temporariamente indisponível. Entre em contato com o administrador.
             </p>
           )}
 

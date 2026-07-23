@@ -2,41 +2,58 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { fetchUserProfile } from '../services/userService';
 
-function getDisplayName(user, profile) {
+function getDisplayName(email, profile) {
   if (profile?.fullName) return profile.fullName;
-  if (!user) return 'Usuário';
-  return user.user_metadata?.full_name
-    || user.email?.split('@')[0]
-    || 'Usuário';
+  if (!email) return 'Usuário';
+  return email.split('@')[0] || 'Usuário';
 }
 
 function getInitials(name) {
   return name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
 }
 
+function syncAuthState(session) {
+  return {
+    userId: session?.user?.id ?? null,
+    userEmail: session?.user?.email ?? '',
+    isAuthenticated: Boolean(session),
+  };
+}
+
 export default function useAuth() {
-  const [session, setSession] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [userEmail, setUserEmail] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pendingRecovery, setPendingRecovery] = useState(false);
 
-  const loadProfile = useCallback(async (userId) => {
-    if (!userId || !isSupabaseConfigured) {
+  const applySession = useCallback((session) => {
+    const next = syncAuthState(session);
+    setUserId(next.userId);
+    setUserEmail(next.userEmail);
+    setIsAuthenticated(next.isAuthenticated);
+    return next.userId;
+  }, []);
+
+  const loadProfile = useCallback(async (id) => {
+    if (!id || !isSupabaseConfigured) {
       setProfile(null);
       return null;
     }
     try {
-      const data = await fetchUserProfile(userId);
+      const data = await fetchUserProfile(id);
       if (data.isActive === false) {
         await supabase.auth.signOut();
         setProfile(null);
-        setSession(null);
+        setUserId(null);
+        setUserEmail('');
+        setIsAuthenticated(false);
         return null;
       }
       setProfile(data);
       return data;
-    } catch (err) {
-      console.error('Erro ao carregar perfil:', err);
+    } catch {
       setProfile(null);
       return null;
     }
@@ -53,9 +70,9 @@ export default function useAuth() {
     }
 
     supabase.auth.getSession().then(({ data: { session: current } }) => {
-      setSession(current);
-      if (current?.user?.id) {
-        loadProfile(current.user.id).finally(() => setLoading(false));
+      const id = applySession(current);
+      if (id) {
+        loadProfile(id).finally(() => setLoading(false));
       } else {
         setLoading(false);
       }
@@ -65,9 +82,9 @@ export default function useAuth() {
       if (event === 'PASSWORD_RECOVERY') {
         setPendingRecovery(true);
       }
-      setSession(current);
-      if (current?.user?.id && event !== 'PASSWORD_RECOVERY') {
-        loadProfile(current.user.id);
+      const id = applySession(current);
+      if (id && event !== 'PASSWORD_RECOVERY') {
+        loadProfile(id);
       } else if (!current) {
         setProfile(null);
         setPendingRecovery(false);
@@ -76,7 +93,7 @@ export default function useAuth() {
     });
 
     return () => subscription.unsubscribe();
-  }, [loadProfile]);
+  }, [applySession, loadProfile]);
 
   const signIn = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -130,8 +147,8 @@ export default function useAuth() {
       if (window.location.hash) {
         window.history.replaceState(null, '', window.location.pathname);
       }
-      if (session?.user?.id) {
-        await loadProfile(session.user.id);
+      if (userId) {
+        await loadProfile(userId);
       }
     }
     return error;
@@ -139,14 +156,18 @@ export default function useAuth() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setSession(null);
+    setUserId(null);
+    setUserEmail('');
+    setIsAuthenticated(false);
+    setProfile(null);
   };
 
-  const userName = getDisplayName(session?.user, profile);
+  const userName = getDisplayName(userEmail, profile);
   const userInitials = getInitials(userName);
 
   return {
-    session,
+    userId,
+    userEmail,
     profile,
     loading,
     signIn,
@@ -156,10 +177,10 @@ export default function useAuth() {
     completePasswordRecovery,
     pendingRecovery,
     signOut,
-    refreshProfile: () => loadProfile(session?.user?.id),
+    refreshProfile: () => loadProfile(userId),
     userName,
     userInitials,
-    isAuthenticated: Boolean(session),
+    isAuthenticated,
     isSupabaseConfigured,
   };
 }
