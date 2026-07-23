@@ -4,7 +4,7 @@ import EmptyState from '../../../components/ui/EmptyState';
 import { CrudModal, ConfirmDeleteModal, Field, FInput, FTextarea, CrudToolbar, RowActions } from '../../../components/crud';
 import { createGlossarioTerm, updateGlossarioTerm, deleteGlossarioTerm } from '../../../services/entityService';
 
-function ProjectGlossario({ project, pushToast, onRefresh }) {
+function ProjectGlossario({ project, pushToast, onRefresh, canEdit = false }) {
   const [items, setItems] = useState(() => project.glossario || []);
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null);
@@ -58,13 +58,13 @@ function ProjectGlossario({ project, pushToast, onRefresh }) {
 
   return (
     <div className="w-full">
-      <CrudToolbar project={project} search={search} onSearch={setSearch} onAdd={openAdd} addLabel="Adicionar Termo" placeholder="Buscar termos…" />
+      <CrudToolbar project={project} search={search} onSearch={setSearch} onAdd={openAdd} addLabel="Adicionar Termo" placeholder="Buscar termos…" canEdit={canEdit} />
       <div className="flex flex-col gap-2.5">
         {filtered.map((g) => (
           <div key={g.id} className="rounded-xl p-3.5 flex items-start gap-3" style={{ background: '#fff', border: '1px solid #E5E7EB' }}>
             <span className="text-[12px] font-bold px-2 py-1 rounded-md shrink-0" style={{ background: project.soft, color: project.color, fontFamily: "'JetBrains Mono', monospace" }}>{g.term}</span>
             <p className="text-[12.5px] pt-0.5 flex-1" style={{ color: '#4B5563' }}>{g.def}</p>
-            <RowActions project={project} onEdit={() => openEdit(g)} onDelete={() => setDelTarget(g)} />
+            <RowActions project={project} onEdit={() => openEdit(g)} onDelete={() => setDelTarget(g)} canEdit={canEdit} />
           </div>
         ))}
         {filtered.length === 0 && <EmptyState icon={BookMarked} title="Nenhum termo encontrado" />}

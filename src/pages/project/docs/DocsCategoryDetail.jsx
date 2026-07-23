@@ -4,7 +4,7 @@ import { DOC_ICONS } from '../../../data/docConstants';
 import DocModal from './DocModal';
 import { uploadProjectDocument } from '../../../services/storageService';
 
-function DocsCategoryDetail({ project, category, docs, onBack, onAddDoc, onDeleteDoc }) {
+function DocsCategoryDetail({ project, category, docs, onBack, onAddDoc, onDeleteDoc, canEdit = false }) {
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ title: '', type: 'Documento', author: '', url: '', category });
@@ -55,11 +55,13 @@ function DocsCategoryDetail({ project, category, docs, onBack, onAddDoc, onDelet
           <span className="w-8 h-8 rounded-md flex items-center justify-center border" style={{ background: project.soft, borderColor: `${project.color}22` }}><Icon size={16} color={project.color} /></span>
           <h2 className="text-base font-semibold text-ink-primary">{category}</h2>
         </div>
-        <div className="ml-auto">
-          <button type="button" onClick={() => setShowModal(true)} className="btn-primary" style={{ background: project.color }}>
-            <Plus size={15} /> Adicionar Documentação
-          </button>
-        </div>
+        {canEdit && (
+          <div className="ml-auto">
+            <button type="button" onClick={() => setShowModal(true)} className="btn-primary" style={{ background: project.color }}>
+              <Plus size={15} /> Adicionar Documentação
+            </button>
+          </div>
+        )}
       </div>
       <div className="rounded-lg overflow-hidden" style={{ border: "1px solid #E5E7EB" }}>
         {docs.length === 0 ? (
@@ -72,7 +74,7 @@ function DocsCategoryDetail({ project, category, docs, onBack, onAddDoc, onDelet
           <table className="w-full text-left">
             <thead>
               <tr style={{ background: "#F3F4F6", borderBottom: "1px solid #E5E7EB" }}>
-                {["Título","Tipo","Autor","Data","Link",""].map((h, i) => <th key={i} className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3" style={{ color: "#9CA3AF" }}>{h}</th>)}
+                {["Título","Tipo","Autor","Data","Link", canEdit ? "" : null].filter(Boolean).map((h, i) => <th key={i} className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3" style={{ color: "#9CA3AF" }}>{h}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -88,7 +90,7 @@ function DocsCategoryDetail({ project, category, docs, onBack, onAddDoc, onDelet
                   <td className="px-4 py-3.5"><div className="flex items-center gap-1.5 text-[12.5px]" style={{ color: "#4B5563" }}><User2 size={12} /> {doc.author}</div></td>
                   <td className="px-4 py-3.5"><div className="flex items-center gap-1.5 text-[12.5px]" style={{ color: "#4B5563" }}><CalendarDays size={12} /> {doc.date}</div></td>
                   <td className="px-4 py-3.5">{doc.url && doc.url !== "#" ? <a href={doc.url} className="flex items-center gap-1 text-[12px] font-medium" style={{ color: project.color }}>Abrir <ExternalLink size={11} /></a> : <span className="text-[12px]" style={{ color: "#C2C8D2" }}>—</span>}</td>
-                  <td className="px-4 py-3.5"><button onClick={() => onDeleteDoc(category, doc.id)} className="p-1.5 rounded-lg transition-colors" style={{ color: "#C2C8D2" }} onMouseEnter={(e) => { e.currentTarget.style.color = "#EF4444"; e.currentTarget.style.background = "#FEF2F2"; }} onMouseLeave={(e) => { e.currentTarget.style.color = "#C2C8D2"; e.currentTarget.style.background = "transparent"; }}><Trash2 size={14} /></button></td>
+                  <td className="px-4 py-3.5">{canEdit ? <button onClick={() => onDeleteDoc(category, doc.id)} className="p-1.5 rounded-lg transition-colors" style={{ color: "#C2C8D2" }} onMouseEnter={(e) => { e.currentTarget.style.color = "#EF4444"; e.currentTarget.style.background = "#FEF2F2"; }} onMouseLeave={(e) => { e.currentTarget.style.color = "#C2C8D2"; e.currentTarget.style.background = "transparent"; }}><Trash2 size={14} /></button> : null}</td>
                 </tr>
               ))}
             </tbody>

@@ -17,14 +17,14 @@ import BackOfficePage from './pages/backoffice/BackOfficePage';
 import ProjectFormModal from './components/projects/ProjectFormModal';
 import { slugify } from './data/projectDefaults';
 import { fetchProjects, fetchProjectById, persistProject, updateProject, deleteProject } from './services/projectService';
-import { canManageBackOffice } from './utils/permissions';
+import { canManageBackOffice, canManageProjectContent } from './utils/permissions';
 import {
   fetchTrilhaProgress,
   toggleTrilhaProgress,
 } from './services/userService';
 
 export default function App() {
-  const { userId, userEmail, profile, loading, signIn, signUp, resendConfirmation, requestPasswordReset, completePasswordRecovery, pendingRecovery, signOut, refreshProfile, userName, userInitials, isAuthenticated, isSupabaseConfigured } = useAuth();
+  const { userId, userEmail, profile, assignedProjectIds, loading, signIn, signUp, resendConfirmation, requestPasswordReset, completePasswordRecovery, pendingRecovery, signOut, refreshProfile, userName, userInitials, isAuthenticated, isSupabaseConfigured } = useAuth();
   const [authView, setAuthView] = useState('login');
   const [route, setRoute] = useState({ view: 'dashboard' });
   const [searchOpen, setSearchOpen] = useState(false);
@@ -318,6 +318,7 @@ export default function App() {
               pushToast={push}
               onRefreshProject={() => refreshProject(currentProject.id)}
               userId={userId}
+              canEditContent={canManageProjectContent(profile, currentProject.id, assignedProjectIds)}
             />
           )}
           {route.view === 'settings' && (

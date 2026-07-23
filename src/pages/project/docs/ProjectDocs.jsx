@@ -5,7 +5,7 @@ import EmptyState from '../../../components/ui/EmptyState';
 import DocModal from './DocModal';
 import { uploadProjectDocument } from '../../../services/storageService';
 
-function ProjectDocs({ project, onViewCategory, docsData, onAddDoc }) {
+function ProjectDocs({ project, onViewCategory, docsData, onAddDoc, canEdit = false }) {
   const categories = Object.entries(project.docs);
   const catNames = categories.map(([c]) => c);
   const [search, setSearch] = useState('');
@@ -75,9 +75,11 @@ function ProjectDocs({ project, onViewCategory, docsData, onAddDoc }) {
           {search && <button onClick={() => setSearch("")} style={{ color: "#C2C8D2" }}><X size={13} /></button>}
         </div>
         {search && <span className="text-[12px]" style={{ color: "#9CA3AF" }}>{filtered.length} categoria{filtered.length !== 1 ? "s" : ""} encontrada{filtered.length !== 1 ? "s" : ""}</span>}
-        <button type="button" onClick={openAdd} className="btn-primary shrink-0" style={{ background: project.color }}>
-          <Plus size={15} /> Adicionar Documentação
-        </button>
+        {canEdit && (
+          <button type="button" onClick={openAdd} className="btn-primary shrink-0" style={{ background: project.color }}>
+            <Plus size={15} /> Adicionar Documentação
+          </button>
+        )}
       </div>
 
       {/* ── Grid ── */}

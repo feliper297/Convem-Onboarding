@@ -4,7 +4,7 @@ import EmptyState from '../../../components/ui/EmptyState';
 import { CrudModal, ConfirmDeleteModal, Field, FInput, FTextarea, CrudToolbar, RowActions } from '../../../components/crud';
 import { createFaqItem, updateFaqItem, deleteFaqItem } from '../../../services/entityService';
 
-function ProjectFaq({ project, pushToast, onRefresh }) {
+function ProjectFaq({ project, pushToast, onRefresh, canEdit = false }) {
   const initItems = () => {
     return Object.entries(project.faq || {}).flatMap(([cat, qs]) => qs.map((q) => ({ ...q, cat })));
   };
@@ -69,7 +69,7 @@ function ProjectFaq({ project, pushToast, onRefresh }) {
 
   return (
     <div className="w-full">
-      <CrudToolbar project={project} search={search} onSearch={setSearch} onAdd={openAdd} addLabel="Adicionar Pergunta" placeholder="Buscar perguntas…" />
+      <CrudToolbar project={project} search={search} onSearch={setSearch} onAdd={openAdd} addLabel="Adicionar Pergunta" placeholder="Buscar perguntas…" canEdit={canEdit} />
       {grouped.length === 0 && <EmptyState icon={HelpCircle} title="Nenhuma pergunta encontrada" />}
       {grouped.map(({ cat, items: catItems }) => (
         <div key={cat} className="mb-6">
@@ -89,7 +89,7 @@ function ProjectFaq({ project, pushToast, onRefresh }) {
                       <ChevronDown size={15} className={`transition-transform shrink-0 mt-0.5 ${open ? 'rotate-180' : ''}`} color="#9CA3AF" />
                     </button>
                     <div className="shrink-0">
-                      <RowActions project={project} onEdit={() => openEdit(it)} onDelete={() => setDelTarget(it)} />
+                      <RowActions project={project} onEdit={() => openEdit(it)} onDelete={() => setDelTarget(it)} canEdit={canEdit} />
                     </div>
                   </div>
                   {open && (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { fetchUserProfile } from '../services/userService';
+import { fetchUserProfile, fetchUserProjectIds } from '../services/userService';
 
 function getDisplayName(email, profile) {
   if (profile?.fullName) return profile.fullName;
@@ -25,6 +25,7 @@ export default function useAuth() {
   const [userEmail, setUserEmail] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [assignedProjectIds, setAssignedProjectIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pendingRecovery, setPendingRecovery] = useState(false);
 
@@ -39,22 +40,29 @@ export default function useAuth() {
   const loadProfile = useCallback(async (id) => {
     if (!id || !isSupabaseConfigured) {
       setProfile(null);
+      setAssignedProjectIds([]);
       return null;
     }
     try {
-      const data = await fetchUserProfile(id);
+      const [data, projectIds] = await Promise.all([
+        fetchUserProfile(id),
+        fetchUserProjectIds(id),
+      ]);
       if (data.isActive === false) {
         await supabase.auth.signOut();
         setProfile(null);
+        setAssignedProjectIds([]);
         setUserId(null);
         setUserEmail('');
         setIsAuthenticated(false);
         return null;
       }
       setProfile(data);
+      setAssignedProjectIds(projectIds);
       return data;
     } catch {
       setProfile(null);
+      setAssignedProjectIds([]);
       return null;
     }
   }, []);
@@ -87,6 +95,7 @@ export default function useAuth() {
         loadProfile(id);
       } else if (!current) {
         setProfile(null);
+        setAssignedProjectIds([]);
         setPendingRecovery(false);
       }
       setLoading(false);
@@ -160,6 +169,7 @@ export default function useAuth() {
     setUserEmail('');
     setIsAuthenticated(false);
     setProfile(null);
+    setAssignedProjectIds([]);
   };
 
   const userName = getDisplayName(userEmail, profile);
@@ -169,6 +179,7 @@ export default function useAuth() {
     userId,
     userEmail,
     profile,
+    assignedProjectIds,
     loading,
     signIn,
     signUp,

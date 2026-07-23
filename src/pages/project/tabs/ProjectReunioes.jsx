@@ -4,7 +4,7 @@ import EmptyState from '../../../components/ui/EmptyState';
 import { CrudModal, ConfirmDeleteModal, Field, FInput, FTextarea, CrudToolbar, CardActions } from '../../../components/crud';
 import { createReuniao, updateReuniao, deleteReuniao } from '../../../services/entityService';
 
-function ProjectReunioes({ project, pushToast, onRefresh }) {
+function ProjectReunioes({ project, pushToast, onRefresh, canEdit = false }) {
   const [items, setItems] = useState(() => project.reunioes || []);
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null);
@@ -69,13 +69,13 @@ function ProjectReunioes({ project, pushToast, onRefresh }) {
 
   return (
     <div>
-      <CrudToolbar project={project} search={search} onSearch={setSearch} onAdd={openAdd} addLabel="Adicionar Reunião" placeholder="Buscar reuniões…" />
+      <CrudToolbar project={project} search={search} onSearch={setSearch} onAdd={openAdd} addLabel="Adicionar Reunião" placeholder="Buscar reuniões…" canEdit={canEdit} />
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((r) => {
           const parts = Array.isArray(r.participants) ? r.participants.join(', ') : r.participants;
           return (
             <div key={r.id} className="rounded-lg p-5 flex flex-col gap-3 relative" style={{ background: '#fff', border: '1px solid #E5E7EB' }}>
-              <div className="absolute top-3 right-3"><CardActions project={project} onEdit={() => openEdit(r)} onDelete={() => setDelTarget(r)} /></div>
+              <div className="absolute top-3 right-3"><CardActions project={project} onEdit={() => openEdit(r)} onDelete={() => setDelTarget(r)} canEdit={canEdit} /></div>
               <div className="flex items-center gap-2.5 pr-16">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: project.soft }}><Video size={16} color={project.color} /></div>
                 <p className="text-[14px] font-bold" style={{ color: 'var(--ink-primary)' }}>{r.name}</p>

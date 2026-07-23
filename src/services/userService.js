@@ -73,6 +73,15 @@ export async function saveUserSettings(userId, { notificationsEnabled, emailDige
   if (error) throw error;
 }
 
+export async function fetchUserProjectIds(userId) {
+  const { data, error } = await supabase
+    .from('user_projects')
+    .select('project_id')
+    .eq('user_id', userId);
+  if (error) throw error;
+  return (data || []).map((row) => row.project_id);
+}
+
 export async function fetchUserProfile(userId) {
   const { data, error } = await supabase
     .from('profiles')

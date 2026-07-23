@@ -10,7 +10,7 @@ import {
   createOperacaoCanal, updateOperacaoCanal, deleteOperacaoCanal,
 } from '../../../services/entityService';
 
-function ProjectOperacao({ project, pushToast, onRefresh }) {
+function ProjectOperacao({ project, pushToast, onRefresh, canEdit = false }) {
   const op = project.operacao || { alertas: [], diagnostico: [], contatos: [], logs: [], canais: [] };
   const [alertas, setAlertas] = useState(() => op.alertas || []);
   const [diag, setDiag] = useState(() => op.diagnostico || []);
@@ -112,9 +112,11 @@ function ProjectOperacao({ project, pushToast, onRefresh }) {
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: project.soft }}><Icon size={16} color={project.color} /></div>
           <h2 className="text-[15px] font-bold" style={{ color: 'var(--ink-primary)' }}>{title}</h2>
         </div>
-        <button type="button" onClick={onAdd} className="btn-primary shrink-0" style={{ background: project.color }}>
-          <Plus size={13} /> {addLabel}
-        </button>
+        {canEdit && (
+          <button type="button" onClick={onAdd} className="btn-primary shrink-0" style={{ background: project.color }}>
+            <Plus size={13} /> {addLabel}
+          </button>
+        )}
       </div>
       {children}
     </div>
@@ -131,7 +133,7 @@ function ProjectOperacao({ project, pushToast, onRefresh }) {
                   <code className="text-[12px] font-bold px-2.5 py-1 rounded-md" style={{ background: '#F3F4F6', color: 'var(--ink-primary)', fontFamily: "'JetBrains Mono', monospace" }}>{a.nome}</code>
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: sevBg(a.severidade), color: sevColor(a.severidade) }}>{a.severidade}</span>
                 </div>
-                <RowActions project={project} onEdit={() => openModal('alerta', 'edit', a)} onDelete={() => setDelTarget({ type: 'alerta', item: a })} />
+                <RowActions project={project} onEdit={() => openModal('alerta', 'edit', a)} onDelete={() => setDelTarget({ type: 'alerta', item: a })} canEdit={canEdit} />
               </div>
               <p className="text-[12.5px]" style={{ color: '#4B5563' }}><strong style={{ color: 'var(--ink-primary)' }}>O que significa:</strong> {a.significado}</p>
               <p className="text-[12.5px]" style={{ color: '#4B5563' }}><strong style={{ color: project.color }}>Ação:</strong> {a.acao}</p>
@@ -148,7 +150,7 @@ function ProjectOperacao({ project, pushToast, onRefresh }) {
             <div key={p.id} className="flex items-center gap-3 px-4 py-3" style={{ borderTop: i === 0 ? 'none' : '1px solid #F0F2F5' }}>
               <span className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0" style={{ background: project.color }}>{i + 1}</span>
               <p className="text-[13px] flex-1" style={{ color: '#4B5563' }}>{p.text}</p>
-              <RowActions project={project} onEdit={() => openModal('diag', 'edit', p)} onDelete={() => setDelTarget({ type: 'diag', item: p })} />
+              <RowActions project={project} onEdit={() => openModal('diag', 'edit', p)} onDelete={() => setDelTarget({ type: 'diag', item: p })} canEdit={canEdit} />
             </div>
           ))}
         </div>
@@ -165,7 +167,7 @@ function ProjectOperacao({ project, pushToast, onRefresh }) {
                     <td className="px-4 py-3 text-[13px] font-semibold" style={{ color: 'var(--ink-primary)' }}>{c.problema}</td>
                     <td className="px-4 py-3 text-[12.5px]" style={{ color: '#4B5563' }}>{c.responsavel}</td>
                     <td className="px-4 py-3"><code className="text-[12px] font-medium px-2 py-0.5 rounded" style={{ background: project.soft, color: project.color, fontFamily: "'JetBrains Mono', monospace" }}>{c.canal}</code></td>
-                    <td className="px-4 py-3"><RowActions project={project} onEdit={() => openModal('contato', 'edit', c)} onDelete={() => setDelTarget({ type: 'contato', item: c })} /></td>
+                    <td className="px-4 py-3"><RowActions project={project} onEdit={() => openModal('contato', 'edit', c)} onDelete={() => setDelTarget({ type: 'contato', item: c })} canEdit={canEdit} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -181,7 +183,7 @@ function ProjectOperacao({ project, pushToast, onRefresh }) {
             <div key={l.id} className="rounded-xl p-4" style={{ background: '#fff', border: '1px solid #E5E7EB' }}>
               <div className="flex items-center justify-between mb-1.5">
                 <p className="text-[13px] font-semibold" style={{ color: 'var(--ink-primary)' }}>{l.sistema}</p>
-                <RowActions project={project} onEdit={() => openModal('log', 'edit', l)} onDelete={() => setDelTarget({ type: 'log', item: l })} />
+                <RowActions project={project} onEdit={() => openModal('log', 'edit', l)} onDelete={() => setDelTarget({ type: 'log', item: l })} canEdit={canEdit} />
               </div>
               <p className="text-[12.5px] mb-2" style={{ color: '#4B5563' }}><strong style={{ color: 'var(--ink-primary)' }}>Onde:</strong> {l.onde}</p>
               <div className="rounded-lg px-3 py-2" style={{ background: '#0F172A' }}>
@@ -205,7 +207,7 @@ function ProjectOperacao({ project, pushToast, onRefresh }) {
                 </div>
                 <p className="text-[12px]" style={{ color: '#4B5563' }}>{c.descricao}</p>
               </div>
-              <div className="absolute top-2 right-2"><RowActions project={project} onEdit={() => openModal('canal', 'edit', c)} onDelete={() => setDelTarget({ type: 'canal', item: c })} /></div>
+              <div className="absolute top-2 right-2"><RowActions project={project} onEdit={() => openModal('canal', 'edit', c)} onDelete={() => setDelTarget({ type: 'canal', item: c })} canEdit={canEdit} /></div>
             </div>
           ))}
         </div>

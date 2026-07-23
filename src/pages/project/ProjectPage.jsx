@@ -28,6 +28,7 @@ function ProjectPage({
   pushToast,
   onRefreshProject,
   userId,
+  canEditContent = false,
 }) {
   const [loading, setLoading] = useState(true);
   const [docsCategory, setDocsCategory] = useState(null);
@@ -145,6 +146,7 @@ function ProjectPage({
                   onBack={() => setDocsCategory(null)}
                   onAddDoc={handleAddDoc}
                   onDeleteDoc={handleDeleteDoc}
+                  canEdit={canEditContent}
                 />
               ) : (
                 <ProjectDocs
@@ -152,26 +154,27 @@ function ProjectPage({
                   onViewCategory={setDocsCategory}
                   docsData={project.docs}
                   onAddDoc={handleAddDoc}
+                  canEdit={canEditContent}
                 />
               )
             )}
             {route.tab === 'glossario' && (
-              <ProjectGlossario project={project} pushToast={pushToast} onRefresh={onRefreshProject} />
+              <ProjectGlossario project={project} pushToast={pushToast} onRefresh={onRefreshProject} canEdit={canEditContent} />
             )}
             {route.tab === 'pessoas' && (
-              <ProjectPessoas project={project} pushToast={pushToast} onRefresh={onRefreshProject} />
+              <ProjectPessoas project={project} pushToast={pushToast} onRefresh={onRefreshProject} canEdit={canEditContent} />
             )}
             {route.tab === 'stakeholders' && (
-              <ProjectStakeholders project={project} pushToast={pushToast} onRefresh={onRefreshProject} />
+              <ProjectStakeholders project={project} pushToast={pushToast} onRefresh={onRefreshProject} canEdit={canEditContent} />
             )}
             {route.tab === 'reunioes' && (
-              <ProjectReunioes project={project} pushToast={pushToast} onRefresh={onRefreshProject} />
+              <ProjectReunioes project={project} pushToast={pushToast} onRefresh={onRefreshProject} canEdit={canEditContent} />
             )}
             {route.tab === 'operacao' && (
-              <ProjectOperacao project={project} pushToast={pushToast} onRefresh={onRefreshProject} />
+              <ProjectOperacao project={project} pushToast={pushToast} onRefresh={onRefreshProject} canEdit={canEditContent} />
             )}
             {route.tab === 'faq' && (
-              <ProjectFaq project={project} pushToast={pushToast} onRefresh={onRefreshProject} />
+              <ProjectFaq project={project} pushToast={pushToast} onRefresh={onRefreshProject} canEdit={canEditContent} />
             )}
           </>
         )}

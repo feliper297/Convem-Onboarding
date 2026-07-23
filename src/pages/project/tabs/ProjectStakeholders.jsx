@@ -4,7 +4,7 @@ import EmptyState from '../../../components/ui/EmptyState';
 import { CrudModal, ConfirmDeleteModal, Field, FInput, FTextarea, FSelect, CrudToolbar, RowActions } from '../../../components/crud';
 import { createStakeholder, updateStakeholder, deleteStakeholder } from '../../../services/entityService';
 
-function ProjectStakeholders({ project, pushToast, onRefresh }) {
+function ProjectStakeholders({ project, pushToast, onRefresh, canEdit = false }) {
   const [items, setItems] = useState(() => project.stakeholders || []);
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null);
@@ -62,7 +62,7 @@ function ProjectStakeholders({ project, pushToast, onRefresh }) {
 
   return (
     <div>
-      <CrudToolbar project={project} search={search} onSearch={setSearch} onAdd={openAdd} addLabel="Adicionar Stakeholder" placeholder="Buscar stakeholders…" />
+      <CrudToolbar project={project} search={search} onSearch={setSearch} onAdd={openAdd} addLabel="Adicionar Stakeholder" placeholder="Buscar stakeholders…" canEdit={canEdit} />
       <div className="table-shell">
         {filtered.length === 0 ? <EmptyState icon={Network} title="Nenhum stakeholder encontrado" /> : (
           <table className="w-full text-left">
@@ -91,7 +91,7 @@ function ProjectStakeholders({ project, pushToast, onRefresh }) {
                       <a href={`mailto:${s.contact}`} className="flex items-center gap-1.5 text-[12px] font-medium" style={{ color: project.color }}><Mail size={12} /> Contato</a>
                     ) : <span style={{ color: '#C2C8D2' }}>—</span>}
                   </td>
-                  <td className="px-4 py-3.5"><RowActions project={project} onEdit={() => openEdit(s)} onDelete={() => setDelTarget(s)} /></td>
+                  <td className="px-4 py-3.5"><RowActions project={project} onEdit={() => openEdit(s)} onDelete={() => setDelTarget(s)} canEdit={canEdit} /></td>
                 </tr>
               ))}
             </tbody>

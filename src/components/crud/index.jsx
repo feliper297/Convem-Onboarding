@@ -124,7 +124,7 @@ function FSelect({ value, onChange, options }) {
   );
 }
 
-function CrudToolbar({ project, search, onSearch, onAdd, addLabel, placeholder = 'Buscar…' }) {
+function CrudToolbar({ project, search, onSearch, onAdd, addLabel, placeholder = 'Buscar…', canEdit = true }) {
   return (
     <div className="flex items-center gap-3 flex-wrap mb-4">
       <div className="flex items-center gap-2 flex-1 min-w-[200px] px-3 py-2 rounded-md bg-surface border border-border">
@@ -141,15 +141,18 @@ function CrudToolbar({ project, search, onSearch, onAdd, addLabel, placeholder =
           </button>
         )}
       </div>
-      <button type="button" onClick={onAdd} className="btn-primary shrink-0" style={{ background: project.color }}>
-        <Plus size={15} />
-        {addLabel}
-      </button>
+      {canEdit && (
+        <button type="button" onClick={onAdd} className="btn-primary shrink-0" style={{ background: project.color }}>
+          <Plus size={15} />
+          {addLabel}
+        </button>
+      )}
     </div>
   );
 }
 
-function RowActions({ project, onEdit, onDelete }) {
+function RowActions({ project, onEdit, onDelete, canEdit = true }) {
+  if (!canEdit) return null;
   return (
     <div className="flex items-center gap-0.5">
       <button
@@ -170,7 +173,8 @@ function RowActions({ project, onEdit, onDelete }) {
   );
 }
 
-function CardActions({ project, onEdit, onDelete }) {
+function CardActions({ project, onEdit, onDelete, canEdit = true }) {
+  if (!canEdit) return null;
   return (
     <div className="flex gap-1">
       <button
