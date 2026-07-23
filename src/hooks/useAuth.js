@@ -116,7 +116,19 @@ export default function useAuth() {
     return null;
   };
 
-  const signUp = async ({ email, password, fullName, projectId }) => {
+  const signUp = async ({ email, password, fullName, projectName }) => {
+    const trimmedProject = projectName?.trim();
+    if (trimmedProject) {
+      const { data: resolvedId, error: projectError } = await supabase.rpc(
+        'resolve_project_id_by_name',
+        { p_name: trimmedProject },
+      );
+      if (projectError) return { data: null, error: projectError };
+      if (!resolvedId) {
+        return { data: null, error: { message: 'Projeto não encontrado. Verifique o nome informado.' } };
+      }
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -124,7 +136,7 @@ export default function useAuth() {
         data: {
           full_name: fullName,
           role: 'colaborador',
-          project_id: projectId || null,
+          project_name: trimmedProject || null,
         },
         emailRedirectTo: `${window.location.origin}/`,
       },

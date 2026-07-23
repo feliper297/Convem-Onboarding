@@ -323,12 +323,6 @@ async function fetchRelatedData(projectIds) {
   };
 }
 
-export async function fetchSignupProjects() {
-  const { data, error } = await supabase.rpc('list_active_projects_for_signup');
-  if (error) throw error;
-  return data || [];
-}
-
 export async function fetchProjects() {
   const { data: projects, error } = await supabase
     .from('projects')

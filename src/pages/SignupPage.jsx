@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { LayoutGrid, Mail, Loader2, ArrowRight, User, FolderKanban } from 'lucide-react';
 import { Field, FInput } from '../components/crud';
 import PasswordInput from '../components/auth/PasswordInput';
-import { fetchSignupProjects } from '../services/projectService';
 
 function SignupPage({ onSignUp, onResendConfirmation, onGoToLogin, isSupabaseConfigured }) {
   const [fullName, setFullName] = useState('');
-  const [projectId, setProjectId] = useState('');
-  const [projects, setProjects] = useState([]);
-  const [projectsLoading, setProjectsLoading] = useState(isSupabaseConfigured);
+  const [projectName, setProjectName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,40 +15,13 @@ function SignupPage({ onSignUp, onResendConfirmation, onGoToLogin, isSupabaseCon
   const [resending, setResending] = useState(false);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
 
-  useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setProjectsLoading(false);
-      return undefined;
-    }
-
-    let cancelled = false;
-
-    fetchSignupProjects()
-      .then((loaded) => {
-        if (!cancelled) {
-          setProjects(loaded);
-          if (loaded.length === 1) {
-            setProjectId(loaded[0].id);
-          }
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setProjects([]);
-      })
-      .finally(() => {
-        if (!cancelled) setProjectsLoading(false);
-      });
-
-    return () => { cancelled = true; };
-  }, [isSupabaseConfigured]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
     if (!fullName.trim()) return setError('Informe seu nome completo.');
-    if (projects.length > 0 && !projectId) return setError('Selecione o projeto em que participa.');
+    if (!projectName.trim()) return setError('Informe o projeto em que participa.');
     if (!email.trim()) return setError('Informe seu e-mail.');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setError('Informe um e-mail válido.');
     if (!password) return setError('Informe uma senha.');
@@ -63,7 +33,7 @@ function SignupPage({ onSignUp, onResendConfirmation, onGoToLogin, isSupabaseCon
       email: email.trim(),
       password,
       fullName: fullName.trim(),
-      projectId: projectId || null,
+      projectName: projectName.trim(),
     });
     setSubmitting(false);
 
@@ -73,6 +43,8 @@ function SignupPage({ onSignUp, onResendConfirmation, onGoToLogin, isSupabaseCon
         setError('Este e-mail já está cadastrado. Faça login ou use outro e-mail.');
       } else if (msg.includes('Password')) {
         setError('A senha não atende aos requisitos mínimos de segurança.');
+      } else if (msg.includes('Projeto não encontrado')) {
+        setError('Projeto não encontrado. Verifique o nome informado.');
       } else {
         setError(msg || 'Não foi possível criar a conta. Tente novamente.');
       }
@@ -152,31 +124,18 @@ function SignupPage({ onSignUp, onResendConfirmation, onGoToLogin, isSupabaseCon
               </div>
             </Field>
 
-            <Field label="Projeto" required={projects.length > 0}>
+            <Field label="Projeto" required>
               <div className="relative">
                 <FolderKanban
                   size={15}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-ink-muted z-10"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-ink-muted"
                 />
-                <select
-                  value={projectId}
-                  onChange={(e) => setProjectId(e.target.value)}
-                  disabled={projectsLoading || projects.length === 0}
-                  className="input pl-9 appearance-none"
-                >
-                  <option value="">
-                    {projectsLoading
-                      ? 'Carregando projetos…'
-                      : projects.length === 0
-                        ? 'Nenhum projeto disponível'
-                        : 'Selecione seu projeto'}
-                  </option>
-                  {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}
-                    </option>
-                  ))}
-                </select>
+                <FInput
+                  value={projectName}
+                  onChange={setProjectName}
+                  placeholder="Ex: APP Banking"
+                  className="pl-9"
+                />
               </div>
             </Field>
 
