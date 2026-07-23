@@ -116,7 +116,7 @@ export default function useAuth() {
     return null;
   };
 
-  const signUp = async ({ email, password, fullName }) => {
+  const signUp = async ({ email, password, fullName, projectId }) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -124,6 +124,7 @@ export default function useAuth() {
         data: {
           full_name: fullName,
           role: 'colaborador',
+          project_id: projectId || null,
         },
         emailRedirectTo: `${window.location.origin}/`,
       },
