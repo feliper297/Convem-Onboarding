@@ -219,7 +219,11 @@
   }
 
   .table-shell {
-    @apply card overflow-hidden;
+    @apply card overflow-hidden bg-surface;
+  }
+
+  .table-shell thead tr {
+    @apply bg-surface border-b border-border;
   }
 
   .auth-panel {

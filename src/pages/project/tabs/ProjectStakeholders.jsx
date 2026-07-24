@@ -67,7 +67,7 @@ function ProjectStakeholders({ project, pushToast, onRefresh, canEdit = false })
         {filtered.length === 0 ? <EmptyState icon={Network} title="Nenhum stakeholder encontrado" /> : (
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-surface-subtle border-b border-border">
+              <tr className="border-b border-border">
                 {['Stakeholder', 'Área', 'Influência', 'Interesse', 'Expectativa', 'Contato', ''].map((h) => (
                   <th key={h} className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3 text-ink-muted">{h}</th>
                 ))}

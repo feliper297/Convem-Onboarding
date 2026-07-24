@@ -157,13 +157,19 @@ function ProjectOperacao({ project, pushToast, onRefresh, canEdit = false }) {
       </Section>
 
       <Section icon={PhoneCall} title="Com quem falar para cada tipo de problema" onAdd={() => openModal('contato', 'add')} addLabel="Adicionar Contato">
-        <div className="rounded-lg overflow-hidden" style={{ background: '#fff', border: '1px solid #E5E7EB' }}>
+        <div className="table-shell">
           {contatos.length === 0 ? <EmptyState icon={PhoneCall} title="Nenhum contato cadastrado" /> : (
             <table className="w-full text-left">
-              <thead><tr style={{ background: '#F3F4F6', borderBottom: '1px solid #E5E7EB' }}>{['Tipo de Problema', 'Responsável', 'Canal', ''].map((h) => <th key={h} className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3" style={{ color: '#9CA3AF' }}>{h}</th>)}</tr></thead>
-              <tbody>
+              <thead>
+                <tr>
+                  {['Tipo de Problema', 'Responsável', 'Canal', ''].map((h) => (
+                    <th key={h || 'actions'} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-ink-muted">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-surface">
                 {contatos.map((c, i) => (
-                  <tr key={c.id} style={{ borderTop: i === 0 ? 'none' : '1px solid #E5E7EB' }}>
+                  <tr key={c.id} className={i > 0 ? 'border-t border-border' : ''}>
                     <td className="px-4 py-3 text-[13px] font-semibold" style={{ color: 'var(--ink-primary)' }}>{c.problema}</td>
                     <td className="px-4 py-3 text-[12.5px]" style={{ color: '#4B5563' }}>{c.responsavel}</td>
                     <td className="px-4 py-3"><code className="text-[12px] font-medium px-2 py-0.5 rounded" style={{ background: project.soft, color: project.color, fontFamily: "'JetBrains Mono', monospace" }}>{c.canal}</code></td>

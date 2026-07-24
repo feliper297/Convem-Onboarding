@@ -3,6 +3,7 @@ import { ArrowLeft, Plus, FileText, User2, CalendarDays, ExternalLink, Trash2 } 
 import { DOC_ICONS } from '../../../data/docConstants';
 import DocModal from './DocModal';
 import { uploadProjectDocument } from '../../../services/storageService';
+import EmptyState from '../../../components/ui/EmptyState';
 
 function DocsCategoryDetail({ project, category, docs, onBack, onAddDoc, onDeleteDoc, canEdit = false }) {
   const [showModal, setShowModal] = useState(false);
@@ -45,6 +46,8 @@ function DocsCategoryDetail({ project, category, docs, onBack, onAddDoc, onDelet
     }
   };
 
+  const headers = ['Título', 'Tipo', 'Autor', 'Data', 'Link', ...(canEdit ? [''] : [])];
+
   return (
     <div className="flex flex-col gap-5 max-w-[900px]">
       <div className="flex items-center gap-3">
@@ -52,7 +55,12 @@ function DocsCategoryDetail({ project, category, docs, onBack, onAddDoc, onDelet
           <ArrowLeft size={15} /> Voltar
         </button>
         <div className="flex items-center gap-2.5">
-          <span className="w-8 h-8 rounded-md flex items-center justify-center border" style={{ background: project.soft, borderColor: `${project.color}22` }}><Icon size={16} color={project.color} /></span>
+          <span
+            className="flex h-8 w-8 items-center justify-center rounded-md border"
+            style={{ background: project.soft, borderColor: `${project.color}22` }}
+          >
+            <Icon size={16} color={project.color} />
+          </span>
           <h2 className="text-base font-semibold text-ink-primary">{category}</h2>
         </div>
         {canEdit && (
@@ -63,40 +71,87 @@ function DocsCategoryDetail({ project, category, docs, onBack, onAddDoc, onDelet
           </div>
         )}
       </div>
-      <div className="rounded-lg overflow-hidden" style={{ border: "1px solid #E5E7EB" }}>
+
+      <div className="table-shell">
         {docs.length === 0 ? (
-          <div className="py-14 flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "#F3F4F6" }}><Icon size={20} color="#9CA3AF" /></div>
-            <p className="text-[13.5px] font-semibold" style={{ color: "var(--ink-primary)" }}>Nenhum documento ainda</p>
-            <p className="text-[12.5px]" style={{ color: "#4B5563" }}>Clique em "Adicionar Documentação" para inserir o primeiro.</p>
-          </div>
+          <EmptyState icon={Icon} title="Nenhum documento ainda" description='Clique em "Adicionar Documentação" para inserir o primeiro.' />
         ) : (
-          <table className="w-full text-left">
-            <thead>
-              <tr style={{ background: "#F3F4F6", borderBottom: "1px solid #E5E7EB" }}>
-                {["Título","Tipo","Autor","Data","Link", canEdit ? "" : null].filter(Boolean).map((h, i) => <th key={i} className="text-[11px] font-semibold uppercase tracking-wide px-4 py-3" style={{ color: "#9CA3AF" }}>{h}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {docs.map((doc, i) => (
-                <tr key={doc.id} style={{ borderTop: i === 0 ? "none" : "1px solid #E5E7EB" }}>
-                  <td className="px-4 py-3.5">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0" style={{ background: project.soft }}><FileText size={13} color={project.color} /></div>
-                      <span className="text-[13px] font-semibold" style={{ color: "var(--ink-primary)" }}>{doc.title}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3.5"><span className="text-[11.5px] font-medium px-2.5 py-1 rounded-full" style={{ background: project.soft, color: project.color }}>{doc.type}</span></td>
-                  <td className="px-4 py-3.5"><div className="flex items-center gap-1.5 text-[12.5px]" style={{ color: "#4B5563" }}><User2 size={12} /> {doc.author}</div></td>
-                  <td className="px-4 py-3.5"><div className="flex items-center gap-1.5 text-[12.5px]" style={{ color: "#4B5563" }}><CalendarDays size={12} /> {doc.date}</div></td>
-                  <td className="px-4 py-3.5">{doc.url && doc.url !== "#" ? <a href={doc.url} className="flex items-center gap-1 text-[12px] font-medium" style={{ color: project.color }}>Abrir <ExternalLink size={11} /></a> : <span className="text-[12px]" style={{ color: "#C2C8D2" }}>—</span>}</td>
-                  <td className="px-4 py-3.5">{canEdit ? <button onClick={() => onDeleteDoc(category, doc.id)} className="p-1.5 rounded-lg transition-colors" style={{ color: "#C2C8D2" }} onMouseEnter={(e) => { e.currentTarget.style.color = "#EF4444"; e.currentTarget.style.background = "#FEF2F2"; }} onMouseLeave={(e) => { e.currentTarget.style.color = "#C2C8D2"; e.currentTarget.style.background = "transparent"; }}><Trash2 size={14} /></button> : null}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-left">
+              <thead>
+                <tr>
+                  {headers.map((h) => (
+                    <th key={h || 'actions'} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-surface">
+                {docs.map((doc, i) => (
+                  <tr key={doc.id} className={i > 0 ? 'border-t border-border' : ''}>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+                          style={{ background: project.soft }}
+                        >
+                          <FileText size={13} color={project.color} />
+                        </div>
+                        <span className="text-[13px] font-semibold text-ink-primary">{doc.title}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span
+                        className="rounded-full px-2.5 py-1 text-[11.5px] font-medium"
+                        style={{ background: project.soft, color: project.color }}
+                      >
+                        {doc.type}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-1.5 text-[12.5px] text-ink-secondary">
+                        <User2 size={12} /> {doc.author}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-1.5 text-[12.5px] text-ink-secondary">
+                        <CalendarDays size={12} /> {doc.date}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      {doc.url && doc.url !== '#' ? (
+                        <a
+                          href={doc.url}
+                          className="flex items-center gap-1 text-[12px] font-medium"
+                          style={{ color: project.color }}
+                        >
+                          Abrir <ExternalLink size={11} />
+                        </a>
+                      ) : (
+                        <span className="text-[12px] text-ink-faint">—</span>
+                      )}
+                    </td>
+                    {canEdit && (
+                      <td className="px-4 py-3.5">
+                        <button
+                          type="button"
+                          onClick={() => onDeleteDoc(category, doc.id)}
+                          className="rounded-lg p-1.5 text-ink-faint transition-colors hover:bg-danger-soft hover:text-danger"
+                          aria-label={`Excluir ${doc.title}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
+
       {showModal && (
         <DocModal
           project={project}

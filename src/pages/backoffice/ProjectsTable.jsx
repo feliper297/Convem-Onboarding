@@ -51,7 +51,7 @@ function ProjectsTable({ projects, onEdit, onDelete }) {
             <col className="w-[28%]" />
           </colgroup>
           <thead>
-            <tr className="bg-surface-subtle border-b border-border">
+            <tr className="border-b border-border">
               {['Projeto', 'Responsável', 'Trilha', 'Ações'].map((h) => (
                 <th
                   key={h}
