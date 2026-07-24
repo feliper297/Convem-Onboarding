@@ -177,7 +177,7 @@ export default function App() {
       console.error('Erro ao salvar projeto:', err);
       push(
         err.message?.includes('row-level security')
-          ? 'Sem permissão para salvar. Apenas admin e gestor podem gerenciar projetos.'
+          ? 'Sem permissão para salvar este projeto. Verifique seu acesso.'
           : `Erro ao salvar projeto: ${err.message || 'tente novamente.'}`,
         'default',
       );

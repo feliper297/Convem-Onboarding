@@ -40,7 +40,7 @@ STABLE
 SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
-  SELECT public.is_admin_or_gestor();
+  SELECT public.can_read_project(p_project_id);
 $$;
 
 CREATE OR REPLACE FUNCTION public.can_manage_project_content(p_project_id text)
@@ -72,7 +72,15 @@ CREATE POLICY "Autenticados leem projects"
   TO authenticated
   USING (public.can_read_project(id));
 
--- ─── Tabelas de estrutura do projeto (somente admin/gestor escreve) ──────────
+DROP POLICY IF EXISTS "Admin e gestor gerenciam projects" ON public.projects;
+
+CREATE POLICY "Autenticados gerenciam projects"
+  ON public.projects FOR ALL
+  TO authenticated
+  USING (public.can_read_project(id))
+  WITH CHECK (public.can_read_project(id));
+
+-- ─── Tabelas de estrutura do projeto (autenticados gerenciam) ────────────────
 
 DO $$
 DECLARE
