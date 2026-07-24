@@ -348,7 +348,7 @@ export default function App() {
               onRefreshProject={() => refreshProject(currentProject.id)}
               userId={userId}
               canEditContent={canManageProjectContent(profile, currentProject.id, assignedProjectIds)}
-              canManageProject={canManageBackOffice(profile)}
+              canManageProject={isAuthenticated}
               onEditProject={setEditingProject}
               onDeleteProject={setDeletingProject}
             />
