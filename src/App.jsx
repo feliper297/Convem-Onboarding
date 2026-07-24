@@ -199,7 +199,7 @@ export default function App() {
       console.error('Erro ao atualizar projeto:', err);
       push(
         err.message?.includes('row-level security')
-          ? 'Sem permissão para editar. Apenas admin e gestor podem gerenciar projetos.'
+          ? 'Sem permissão para editar este projeto. Verifique seu acesso.'
           : `Erro ao atualizar projeto: ${err.message || 'tente novamente.'}`,
         'default',
       );
@@ -224,7 +224,7 @@ export default function App() {
       console.error('Erro ao excluir projeto:', err);
       push(
         err.message?.includes('row-level security')
-          ? 'Sem permissão para excluir. Apenas admin e gestor podem gerenciar projetos.'
+          ? 'Sem permissão para excluir este projeto. Verifique seu acesso.'
           : `Erro ao excluir projeto: ${err.message || 'tente novamente.'}`,
         'default',
       );
