@@ -1,7 +1,17 @@
--- Permite colaboradores autenticados gerenciar projetos (editar/excluir)
+-- Permite colaboradores autenticados gerenciar projetos (editar/excluir/criar)
 -- Alinha RLS com a UI: botões visíveis para todos os perfis logados.
 
 CREATE OR REPLACE FUNCTION public.can_manage_project_structure(p_project_id text)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+  SELECT public.can_read_project(p_project_id);
+$$;
+
+CREATE OR REPLACE FUNCTION public.can_manage_project_content(p_project_id text)
 RETURNS boolean
 LANGUAGE sql
 STABLE

@@ -50,8 +50,7 @@ STABLE
 SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
-  SELECT public.is_admin_or_gestor()
-      OR public.is_assigned_to_project(p_project_id);
+  SELECT public.can_read_project(p_project_id);
 $$;
 
 CREATE OR REPLACE FUNCTION public.storage_documents_project_id(object_name text)
