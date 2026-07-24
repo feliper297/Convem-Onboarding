@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { CheckCircle2, Circle } from 'lucide-react';
 
 function ProjectTrilha({ project, completedItems, onToggle }) {

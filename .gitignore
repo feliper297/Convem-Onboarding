@@ -58,3 +58,13 @@ storybook-static
 
 .vercel
 .env*
+
+# Pixel — pacote, brain e config Cursor (nunca commitar)
+pixel-standalone/
+docs/pixel-brain/
+.cursor/agents/pixel.md
+.cursor/skills/pixel/
+.cursor/skills/pixel-*/
+.cursor/hooks.json
+.cursor/hooks/
+.cursor/pixel-test-artifacts/

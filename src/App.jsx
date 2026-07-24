@@ -38,6 +38,7 @@ export default function App() {
   const [userDataLoading, setUserDataLoading] = useState(isSupabaseConfigured);
   const [projects, setProjects] = useState([]);
   const [completed, setCompleted] = useState({});
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { toasts, push } = useToasts();
 
   const loadProjects = useCallback(async () => {
@@ -61,11 +62,23 @@ export default function App() {
         setNewProjectOpen(false);
         setEditingProject(null);
         setDeletingProject(null);
+        setMobileNavOpen(false);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [route.view, route.projectId, route.tab]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [mobileNavOpen]);
 
   useEffect(() => {
     if (!isAuthenticated || !isSupabaseConfigured) {
@@ -284,19 +297,27 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <Sidebar route={route} setRoute={setRoute} projects={projects} profile={profile} />
-      <div className="flex-1 flex flex-col min-w-0">
+      <Sidebar
+        route={route}
+        setRoute={setRoute}
+        projects={projects}
+        profile={profile}
+        mobileOpen={mobileNavOpen}
+        onCloseMobile={() => setMobileNavOpen(false)}
+      />
+      <div className="flex min-w-0 flex-1 flex-col">
         <Header
           route={route}
           setRoute={setRoute}
           onOpenSearch={() => setSearchOpen(true)}
           onOpenNewProject={() => setNewProjectOpen(true)}
+          onOpenMobileNav={() => setMobileNavOpen(true)}
           onLogout={handleLogout}
           currentProject={currentProject}
           userName={userName}
           userAvatarUrl={profile?.avatarUrl}
         />
-        <main className="flex-1 p-4 sm:p-5 lg:p-6 overflow-x-hidden">
+        <main className="flex-1 overflow-x-hidden p-4 sm:p-5 lg:p-6">
           {route.view === 'dashboard' && (
             <Dashboard
               setRoute={setRoute}

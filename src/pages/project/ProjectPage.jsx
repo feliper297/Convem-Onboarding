@@ -80,26 +80,28 @@ function ProjectPage({
 
   return (
     <div className="page-container">
-      <div className="flex items-start sm:items-center gap-3 flex-col sm:flex-row sm:justify-between">
-        <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <div
-            className="w-10 h-10 rounded-md flex items-center justify-center shrink-0 border"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border"
             style={{ background: project.soft, borderColor: `${project.color}22` }}
           >
             <Icon size={19} color={project.color} />
           </div>
-          <div className="min-w-0">
-            <h1 className="page-title break-words">{project.name}</h1>
-            <p className="text-xs text-ink-secondary break-words mt-0.5">{project.tagline}</p>
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <h1 className="page-title truncate">{project.name}</h1>
+            <p className="mt-0.5 truncate text-xs text-ink-secondary" title={project.tagline}>
+              {project.tagline}
+            </p>
           </div>
         </div>
 
         {canManageProject && (
-          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+          <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
               onClick={() => onEditProject?.(project)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-semibold text-brand bg-brand-soft border border-brand/20 hover:opacity-90"
+              className="inline-flex items-center gap-1.5 rounded-md border border-brand/20 bg-brand-soft px-3 py-1.5 text-[12px] font-semibold text-brand hover:opacity-90"
             >
               <Pencil size={13} />
               Editar
@@ -107,19 +109,22 @@ function ProjectPage({
             <button
               type="button"
               onClick={() => onDeleteProject?.(project)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-semibold text-red-600 bg-red-50 border border-red-100 hover:opacity-90"
+              className="btn-icon text-ink-muted hover:bg-red-50 hover:text-red-600"
+              aria-label={`Excluir projeto ${project.name}`}
+              title="Excluir projeto (pede confirmação)"
             >
-              <Trash2 size={13} />
-              Excluir
+              <Trash2 size={15} />
             </button>
           </div>
         )}
       </div>
 
-      <div className="card-padded">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-ink-primary">Progresso da trilha</span>
-          <span className="text-sm font-semibold tabular-nums" style={{ color: project.color }}>
+      <div className="card-padded min-w-0 overflow-hidden">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <span className="min-w-0 truncate text-sm font-medium text-ink-primary">
+            Progresso da trilha
+          </span>
+          <span className="shrink-0 text-sm font-semibold tabular-nums" style={{ color: project.color }}>
             {progress}%
           </span>
         </div>

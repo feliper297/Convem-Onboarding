@@ -3,22 +3,24 @@ import { ChevronRight } from 'lucide-react';
 
 function Breadcrumb({ items }) {
   return (
-    <div className="flex items-center gap-1.5 text-[13px] flex-wrap text-ink-secondary">
+    <div className="flex min-w-0 items-center gap-1.5 overflow-hidden text-[13px] text-ink-secondary">
       {items.map((it, i) => (
         <React.Fragment key={i}>
-          {i > 0 && <ChevronRight size={13} className="text-ink-faint shrink-0" />}
+          {i > 0 && <ChevronRight size={13} className="shrink-0 text-ink-faint" />}
           {it.onClick ? (
             <button
               type="button"
               onClick={it.onClick}
-              className={`hover:underline transition-colors ${
-                i === items.length - 1 ? 'text-ink-primary font-medium' : 'text-ink-secondary'
+              className={`max-w-[28vw] truncate transition-colors hover:underline sm:max-w-none ${
+                i === items.length - 1 ? 'font-medium text-ink-primary' : 'text-ink-secondary'
               }`}
             >
               {it.label}
             </button>
           ) : (
-            <span className="font-medium text-ink-primary">{it.label}</span>
+            <span className="max-w-[40vw] truncate font-medium text-ink-primary sm:max-w-none">
+              {it.label}
+            </span>
           )}
         </React.Fragment>
       ))}
